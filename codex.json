@@ -1,0 +1,27 @@
+{
+  "name": "CODEXFACTORY",
+  "description": "Autonomous development factory powered by OpenAI Codex",
+  "agents": {
+    "project-manager": {
+      "role": "orchestrator",
+      "description": "タスク分解・エージェント調整・統合"
+    },
+    "developer": {
+      "role": "implementation",
+      "description": "機能実装・コード作成"
+    },
+    "tester": {
+      "role": "quality",
+      "description": "テスト作成・実行"
+    },
+    "reviewer": {
+      "role": "review",
+      "description": "コードレビュー・品質チェック"
+    }
+  },
+  "settings": {
+    "parallel_tasks": true,
+    "auto_pr": true,
+    "reasoning_effort": "high"
+  }
+}

@@ -6,23 +6,39 @@
 
 ```
 CODEXFACTORY/
+├── .codex/                 # Codex設定
+│   └── config.json
 ├── agents/                 # エージェント定義
 │   ├── project-manager/    # オーケストレーター
 │   ├── developer/          # 実装担当
 │   ├── tester/             # テスト担当
 │   └── reviewer/           # レビュー担当
 ├── requirements/           # 要件定義ファイル
-├── tasks/                  # タスクファイル
+├── tasks/                  # 分解されたタスク
+├── src/                    # ソースコード
+├── tests/                  # テストコード
 └── docs/                   # ドキュメント
 ```
 
+## エージェント
+
+| Agent | Role | 詳細 |
+|-------|------|------|
+| Project Manager | オーケストレーター | [agents/project-manager/AGENT.md](agents/project-manager/AGENT.md) |
+| Developer | 実装 | [agents/developer/AGENT.md](agents/developer/AGENT.md) |
+| Tester | テスト | [agents/tester/AGENT.md](agents/tester/AGENT.md) |
+| Reviewer | レビュー | [agents/reviewer/AGENT.md](agents/reviewer/AGENT.md) |
+
 ## 自律駆動ワークフロー
 
+詳細: [docs/WORKFLOW.md](docs/WORKFLOW.md)
+
 1. `requirements/` に要件定義を配置
-2. Project Manager Agentがタスクを分解
-3. 各専門エージェントが並列実行
-4. Reviewer Agentが品質チェック
-5. PRを自動生成
+2. Project Manager Agentがタスクを分解 → `tasks/`
+3. Developer Agentが実装 → `src/`
+4. Tester Agentがテスト → `tests/`
+5. Reviewer Agentが品質チェック
+6. PRを自動生成
 
 ## コーディング規約
 

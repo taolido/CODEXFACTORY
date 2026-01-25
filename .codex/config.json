@@ -1,0 +1,21 @@
+{
+  "version": "1.0",
+  "project": "CODEXFACTORY",
+  "settings": {
+    "reasoning_effort": "high",
+    "parallel_execution": true,
+    "auto_pr": true,
+    "test_before_pr": true
+  },
+  "agents": {
+    "directory": "agents/",
+    "config_file": "AGENT.md"
+  },
+  "paths": {
+    "requirements": "requirements/",
+    "tasks": "tasks/",
+    "source": "src/",
+    "tests": "tests/",
+    "docs": "docs/"
+  }
+}

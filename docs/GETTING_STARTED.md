@@ -4,76 +4,78 @@ CODEXFACTORYを使って新しいプロジェクトを開発する方法。
 
 ---
 
-## 方法1: Codex Cloud（Web）
+## プロジェクト作成
 
-### Step 1: 要件ファイルを作成
+### スクリプトで自動生成
 
 ```bash
-# ローカルで要件を追加
 cd /mnt/c/myproject/CODEXFACTORY
+./scripts/create-project.sh my-new-project
 ```
 
-```markdown
-# requirements/my-new-project.md
+これで以下が作成される：
 
-## プロジェクト名
-My New Project
-
-## 概要
-○○をする API
-
-## 機能要件
-1. ユーザー登録
-2. ログイン
-3. データCRUD
-
-## 技術スタック
-- Python / FastAPI
 ```
+/mnt/c/myproject/my-new-project/
+├── .codex/
+│   └── config.json
+├── agents/
+│   ├── AGENT.md (project-manager)
+│   ├── developer.md
+│   ├── tester.md
+│   └── reviewer.md
+├── src/
+├── tests/
+├── requirements/
+│   └── TEMPLATE.md
+├── tasks/
+├── docs/
+│   └── WORKFLOW.md
+├── AGENTS.md
+└── .gitignore
+```
+
+### GitHubにpush
 
 ```bash
-git add requirements/my-new-project.md
-git commit -m "Add my-new-project requirements"
-git push
+cd /mnt/c/myproject/my-new-project
+gh repo create my-new-project --public -y
+git remote add origin https://github.com/YOUR_USERNAME/my-new-project.git
+git push -u origin main
 ```
 
-### Step 2: Codex Cloudでタスク投げる
+---
 
-https://chatgpt.com/codex にアクセスして：
+## 開発開始
+
+### 方法1: Codex Cloud（Web）
+
+1. https://chatgpt.com/codex にアクセス
+2. 作成したリポジトリを接続
+3. タスクを投げる：
 
 ```
-requirements/my-new-project.md を読んで、
+requirements/xxx.md を読んで、
 AGENTS.md のワークフローに従って実装して。
 テストも書いてPRを作成して。
 ```
 
-→ Codexが自律で動いてPRが来る
-
----
-
-## 方法2: Codex CLI
-
-### Step 1: 同じく要件ファイル作成
+### 方法2: Codex CLI
 
 ```bash
-cd /mnt/c/myproject/CODEXFACTORY
-# requirements/my-new-project.md を作成
-```
+cd /mnt/c/myproject/my-new-project
 
-### Step 2: CLIでタスク実行
-
-```bash
 # 対話モード
 codex
 
-# または直接実行
-codex "requirements/my-new-project.md を読んで実装して"
+# 直接実行
+codex "requirements/xxx.md を読んで実装して"
 
 # 放置したいなら
-codex --full-auto "requirements/my-new-project.md を読んで実装してPR作成"
+codex --full-auto "requirements/xxx.md を読んで実装してPR作成"
 
 # Cloudで実行（完全放置）
-codex cloud exec "requirements/my-new-project.md を読んで実装してPR作成"
+codex cloud exec "requirements/xxx.md を読んで実装してPR作成"
 ```
 
 ---
@@ -94,13 +96,13 @@ codex cloud exec "requirements/my-new-project.md を読んで実装してPR作�
 ### シンプル版
 
 ```
-requirements/my-new-project.md を実装して
+requirements/my-feature.md を実装して
 ```
 
 ### 詳細版
 
 ```
-requirements/my-new-project.md を読んで、
+requirements/my-feature.md を読んで、
 AGENTS.md と docs/WORKFLOW.md に従って開発して。
 
 1. タスクを tasks/ に分解
@@ -115,7 +117,6 @@ AGENTS.md と docs/WORKFLOW.md に従って開発して。
 以下を並列で実行して：
 - requirements/api.md → バックエンド実装
 - requirements/frontend.md → フロントエンド実装
-- requirements/docs.md → ドキュメント作成
 ```
 
 ---
@@ -123,17 +124,17 @@ AGENTS.md と docs/WORKFLOW.md に従って開発して。
 ## 実際の流れ
 
 ```
-[あなた]
+[スクリプトでプロジェクト作成]
    ↓
-requirements/ に要件を書く
+[GitHubにpush]
    ↓
-git push
+[requirements/ に要件を書く]
    ↓
-codex cloud exec "..." または Web
+[codex cloud exec "..." または Web]
    ↓
 [放置]
    ↓
-PR来たらレビュー＆マージ
+[PR来たらレビュー＆マージ]
 ```
 
 ---

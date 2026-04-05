@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEEDREAM 2.0 総合リサーチレポート</title>
+<style>
+:root {
+  --c-bg: #0a0a0f;
+  --c-surface: #12121a;
+  --c-surface2: #1a1a26;
+  --c-border: #2a2a3a;
+  --c-text: #e0e0e8;
+  --c-text-sub: #8888a0;
+  --c-accent: #6c5ce7;
+  --c-accent2: #00cec9;
+  --c-accent3: #fd79a8;
+  --c-accent4: #fdcb6e;
+  --c-link: #74b9ff;
+  --c-positive: #00b894;
+  --c-negative: #e17055;
+  --radius: 12px;
+  --shadow: 0 4px 24px rgba(0,0,0,.4);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif;
+  background: var(--c-bg);
+  color: var(--c-text);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+a { color: var(--c-link); text-decoration: none; transition: opacity .2s; }
+a:hover { opacity: .8; }
+
+/* Hero */
+.hero {
+  position: relative;
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 2rem;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 30% 40%, rgba(108,92,231,.25), transparent),
+    radial-gradient(ellipse 60% 50% at 70% 60%, rgba(0,206,201,.15), transparent),
+    radial-gradient(ellipse 40% 30% at 50% 80%, rgba(253,121,168,.1), transparent);
+  z-index: 0;
+}
+.hero > * { position: relative; z-index: 1; }
+.hero-badge {
+  display: inline-block;
+  padding: .4rem 1.2rem;
+  border-radius: 99px;
+  background: rgba(108,92,231,.2);
+  border: 1px solid rgba(108,92,231,.4);
+  color: var(--c-accent);
+  font-size: .85rem;
+  font-weight: 600;
+  letter-spacing: .05em;
+  margin-bottom: 1.5rem;
+}
+.hero h1 {
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 800;
+  background: linear-gradient(135deg, #fff 0%, #6c5ce7 50%, #00cec9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 1rem;
+}
+.hero p {
+  font-size: 1.1rem;
+  color: var(--c-text-sub);
+  max-width: 600px;
+}
+.hero-meta {
+  margin-top: 2rem;
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.hero-stat {
+  text-align: center;
+}
+.hero-stat .num {
+  display: block;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--c-accent2);
+}
+.hero-stat .label {
+  font-size: .8rem;
+  color: var(--c-text-sub);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+/* Layout */
+.wrapper {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  max-width: 1400px;
+  margin: 0 auto;
+  gap: 0;
+}
+@media (max-width: 900px) {
+  .wrapper { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+}
+
+/* Sidebar */
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 2rem 1rem 2rem 1.5rem;
+  border-right: 1px solid var(--c-border);
+  background: var(--c-surface);
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-border) transparent;
+}
+.sidebar h3 {
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--c-text-sub);
+  margin-bottom: 1rem;
+}
+.sidebar a {
+  display: block;
+  padding: .45rem .6rem;
+  border-radius: 6px;
+  font-size: .82rem;
+  color: var(--c-text-sub);
+  transition: all .2s;
+  border-left: 2px solid transparent;
+}
+.sidebar a:hover, .sidebar a.active {
+  background: rgba(108,92,231,.1);
+  color: var(--c-text);
+  border-left-color: var(--c-accent);
+}
+
+/* Main content */
+main {
+  padding: 3rem 3rem 6rem;
+  max-width: 960px;
+}
+@media (max-width: 900px) {
+  main { padding: 2rem 1.2rem 4rem; }
+}
+
+/* Section */
+section {
+  margin-bottom: 4rem;
+  scroll-margin-top: 2rem;
+}
+section h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  padding-bottom: .6rem;
+  border-bottom: 2px solid var(--c-border);
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+section h2 .icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+section h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 2rem 0 .8rem;
+  color: var(--c-accent2);
+}
+section h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 1.2rem 0 .5rem;
+  color: var(--c-accent3);
+}
+p { margin-bottom: .8rem; }
+ul, ol {
+  margin-left: 1.2rem;
+  margin-bottom: 1rem;
+}
+li { margin-bottom: .3rem; }
+strong { color: #fff; }
+code {
+  background: var(--c-surface2);
+  padding: .15em .4em;
+  border-radius: 4px;
+  font-size: .9em;
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+}
+pre {
+  background: var(--c-surface2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: 1.2rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+  font-size: .85rem;
+  line-height: 1.5;
+}
+pre code { background: none; padding: 0; }
+
+/* Cards */
+.card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: border-color .2s;
+}
+.card:hover { border-color: var(--c-accent); }
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.card-sm {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: 1.2rem;
+}
+.card-sm h4 {
+  margin: 0 0 .4rem;
+  color: var(--c-text);
+  font-size: .95rem;
+}
+.card-sm p {
+  margin: 0;
+  font-size: .85rem;
+  color: var(--c-text-sub);
+}
+
+/* Stat cards */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: .8rem;
+  margin-bottom: 1.5rem;
+}
+.stat-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  text-align: center;
+}
+.stat-card .val {
+  font-size: 1.6rem;
+  font-weight: 800;
+  display: block;
+}
+.stat-card .lbl {
+  font-size: .75rem;
+  color: var(--c-text-sub);
+  margin-top: .2rem;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  font-size: .88rem;
+}
+thead th {
+  text-align: left;
+  padding: .7rem .8rem;
+  background: var(--c-surface2);
+  border-bottom: 2px solid var(--c-accent);
+  font-weight: 600;
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--c-text-sub);
+  white-space: nowrap;
+}
+td {
+  padding: .6rem .8rem;
+  border-bottom: 1px solid var(--c-border);
+  vertical-align: top;
+}
+tbody tr:hover { background: rgba(108,92,231,.05); }
+
+/* Tags */
+.tag {
+  display: inline-block;
+  padding: .2rem .6rem;
+  border-radius: 99px;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+.tag-purple { background: rgba(108,92,231,.2); color: #a29bfe; }
+.tag-teal { background: rgba(0,206,201,.15); color: #81ecec; }
+.tag-pink { background: rgba(253,121,168,.15); color: #fab1a0; }
+.tag-yellow { background: rgba(253,203,110,.15); color: #ffeaa7; }
+.tag-green { background: rgba(0,184,148,.15); color: #55efc4; }
+.tag-red { background: rgba(225,112,85,.15); color: #ff7675; }
+
+/* Timeline */
+.timeline {
+  position: relative;
+  padding-left: 2.2rem;
+  margin-bottom: 2rem;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--c-accent), var(--c-accent2), var(--c-accent3));
+  border-radius: 2px;
+}
+.tl-item {
+  position: relative;
+  margin-bottom: 1.4rem;
+}
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -2.2rem;
+  top: .5rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--c-accent);
+  border: 2px solid var(--c-bg);
+  box-shadow: 0 0 0 3px rgba(108,92,231,.3);
+}
+.tl-item:nth-child(2)::before { background: #a29bfe; }
+.tl-item:nth-child(3)::before { background: var(--c-accent2); }
+.tl-item:nth-child(4)::before { background: #55efc4; }
+.tl-item:nth-child(5)::before { background: var(--c-accent4); }
+.tl-item:nth-child(6)::before { background: var(--c-accent3); }
+.tl-item:nth-child(7)::before { background: #ff7675; }
+.tl-date {
+  font-size: .78rem;
+  color: var(--c-accent);
+  font-weight: 600;
+}
+.tl-title {
+  font-weight: 700;
+  color: #fff;
+}
+.tl-desc {
+  font-size: .85rem;
+  color: var(--c-text-sub);
+}
+
+/* Quote */
+.quote-card {
+  border-left: 3px solid var(--c-accent);
+  background: var(--c-surface);
+  padding: 1rem 1.2rem;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin-bottom: .8rem;
+  font-style: italic;
+  color: var(--c-text-sub);
+}
+.quote-card .source {
+  font-style: normal;
+  font-size: .8rem;
+  color: var(--c-accent2);
+  margin-top: .4rem;
+  font-weight: 600;
+}
+
+/* Steps */
+.steps {
+  counter-reset: step;
+  list-style: none;
+  margin-left: 0;
+}
+.steps li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 2.8rem;
+  margin-bottom: .8rem;
+}
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: .1rem;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--c-accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: .8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Platform tree */
+.tree {
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: .85rem;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+}
+.tree .root { color: var(--c-accent4); font-weight: 700; }
+.tree .branch { color: var(--c-accent2); }
+.tree .leaf { color: var(--c-text-sub); }
+
+/* Comparison badge */
+.cmp-best { color: var(--c-positive); font-weight: 700; }
+.cmp-good { color: var(--c-accent4); }
+.cmp-mid { color: var(--c-text-sub); }
+
+/* Link groups */
+.link-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: .6rem;
+  margin-bottom: 1.5rem;
+}
+.link-item {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .6rem .8rem;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  font-size: .82rem;
+  transition: border-color .2s;
+}
+.link-item:hover { border-color: var(--c-accent); }
+.link-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  background: var(--c-surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: .7rem;
+}
+
+/* Scroll to top */
+.scroll-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--c-accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity .3s;
+  z-index: 99;
+  box-shadow: var(--shadow);
+}
+.scroll-top.visible { opacity: 1; }
+
+/* Arch diagram */
+.arch-diagram {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.arch-row {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: .5rem;
+}
+.arch-box {
+  padding: .6rem 1rem;
+  border-radius: 8px;
+  font-size: .8rem;
+  font-weight: 600;
+  border: 1px solid;
+}
+.arch-arrow {
+  color: var(--c-text-sub);
+  font-size: 1.4rem;
+  margin: .3rem 0;
+}
+.ab-dit { background: rgba(108,92,231,.15); border-color: rgba(108,92,231,.4); color: #a29bfe; }
+.ab-enc { background: rgba(0,206,201,.12); border-color: rgba(0,206,201,.3); color: #81ecec; }
+.ab-vae { background: rgba(253,121,168,.12); border-color: rgba(253,121,168,.3); color: #fab1a0; }
+.ab-rlhf { background: rgba(253,203,110,.12); border-color: rgba(253,203,110,.3); color: #ffeaa7; }
+.ab-ref { background: rgba(0,184,148,.12); border-color: rgba(0,184,148,.3); color: #55efc4; }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<header class="hero">
+  <span class="hero-badge">ByteDance Seed Team</span>
+  <h1>SEEDREAM 2.0<br>総合リサーチレポート</h1>
+  <p>ネイティブ中国語・英語バイリンガル画像生成基盤モデルの全貌。<br>技術・使い方・コミュニティ・競合比較を網羅的に調査。</p>
+  <div class="hero-meta">
+    <div class="hero-stat"><span class="num">3.9B</span><span class="label">Parameters</span></div>
+    <div class="hero-stat"><span class="num">1億+</span><span class="label">Users</span></div>
+    <div class="hero-stat"><span class="num">2.5億</span><span class="label">Training Pairs</span></div>
+    <div class="hero-stat"><span class="num">1.4s</span><span class="label">2K Gen (v4.0)</span></div>
+  </div>
+</header>
+
+<div class="wrapper">
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <h3>Contents</h3>
+  <a href="#overview">1. Seedreamとは何か</a>
+  <a href="#architecture">2. 技術アーキテクチャ</a>
+  <a href="#timeline">3. 進化タイムライン</a>
+  <a href="#access">4. アクセス方法</a>
+  <a href="#pricing">5. 料金体系</a>
+  <a href="#prompt">6. プロンプト</a>
+  <a href="#comfyui">7. ComfyUI統合</a>
+  <a href="#seededit">8. SeedEdit</a>
+  <a href="#seedance">9. Seedance 動画生成</a>
+  <a href="#comparison">10. 競合比較</a>
+  <a href="#community">11. SNS・コミュニティ</a>
+  <a href="#license">12. 商用利用</a>
+  <a href="#limitations">13. 制限事項</a>
+  <a href="#ecosystem">14. エコシステム</a>
+  <a href="#links">15. 参考リンク集</a>
+</nav>
+
+<!-- Main -->
+<main>
+
+<!-- 1. Overview -->
+<section id="overview">
+  <h2><span class="icon" style="background:rgba(108,92,231,.2);color:#a29bfe;">S</span> Seedreamとは何か</h2>
+  <p>Seedream 2.0は、<strong>ByteDance（TikTok親会社）のSeedチーム</strong>が開発した<strong>ネイティブ中国語・英語バイリンガル画像生成基盤モデル</strong>。2024年12月初旬にDoubao（豆包）アプリおよびJimeng（即梦）でリリースされ、<strong>1億人以上のエンドユーザー</strong>に利用されている。</p>
+  <p>論文は2025年3月13日にarXivで公開:<br><a href="https://arxiv.org/abs/2503.07703" target="_blank">Seedream 2.0: A Native Chinese-English Bilingual Image Generation Foundation Model</a></p>
+  <div class="stat-row">
+    <div class="stat-card"><span class="val" style="color:var(--c-accent);">DiT</span><span class="lbl">Diffusion Transformer</span></div>
+    <div class="stat-card"><span class="val" style="color:var(--c-accent2);">3.9B</span><span class="lbl">Parameters</span></div>
+    <div class="stat-card"><span class="val" style="color:var(--c-accent3);">ZH+EN</span><span class="lbl">Bilingual Native</span></div>
+    <div class="stat-card"><span class="val" style="color:var(--c-accent4);">#1</span><span class="lbl">EvalMuse Score</span></div>
+  </div>
+</section>
+
+<!-- 2. Architecture -->
+<section id="architecture">
+  <h2><span class="icon" style="background:rgba(0,206,201,.2);color:#81ecec;">A</span> 技術アーキテクチャ</h2>
+
+  <h3>モデル構造</h3>
+  <div class="arch-diagram">
+    <div class="arch-row">
+      <div class="arch-box ab-enc">自社開発バイリンガルLLM<br><small>Decoder-only</small></div>
+      <div class="arch-box ab-enc">Glyph-Aligned ByT5<br><small>文字レベルレンダリング</small></div>
+    </div>
+    <div class="arch-arrow">&#8595;</div>
+    <div class="arch-row">
+      <div class="arch-box ab-dit">Diffusion Transformer (DiT) &mdash; 3.9B params<br><small>MMDiT設計 / Self-Attention / AdaLN / Scaled RoPE</small></div>
+    </div>
+    <div class="arch-arrow">&#8595;</div>
+    <div class="arch-row">
+      <div class="arch-box ab-vae">VAE<br><small>潜在表現生成</small></div>
+      <div class="arch-box ab-ref">Refiner<br><small>アップスケーリング + 構造修正</small></div>
+    </div>
+    <div class="arch-arrow">&#8595;</div>
+    <div class="arch-row">
+      <div class="arch-box ab-rlhf">RLHF (3 Reward Models)<br><small>テキスト整合性 / 美的 / テキストレンダリング</small></div>
+    </div>
+  </div>
+
+  <h3>コアアーキテクチャ詳細</h3>
+  <table>
+    <thead><tr><th>要素</th><th>詳細</th></tr></thead>
+    <tbody>
+      <tr><td>ベース</td><td>Diffusion Transformer (DiT) + VAE</td></tr>
+      <tr><td>パラメータ数</td><td><strong>約39億（3.9B）</strong></td></tr>
+      <tr><td>設計思想</td><td>Stable Diffusion 3のMMDiT原則に準拠</td></tr>
+      <tr><td>Transformerブロック</td><td>各ブロックに1つのSelf-Attention層、画像・テキストトークンを同時処理</td></tr>
+      <tr><td>MLP</td><td>モダリティ別（画像用・テキスト用を分離）</td></tr>
+      <tr><td>正規化</td><td>Adaptive Layer Norm（AdaLN）で注意層とMLP層を変調</td></tr>
+      <tr><td>位置エンコーディング</td><td>Scaled RoPE（未学習解像度への汎化対応）</td></tr>
+    </tbody>
+  </table>
+
+  <h3>テキストエンコーダ（2系統）</h3>
+  <div class="card-grid">
+    <div class="card-sm">
+      <h4>自社開発バイリンガルLLM</h4>
+      <p>Decoder-onlyアーキテクチャ。CLIP/T5ではなく独自開発。中英両言語のセマンティクスを深く理解。</p>
+    </div>
+    <div class="card-sm">
+      <h4>Glyph-Aligned ByT5</h4>
+      <p>文字レベルのテキストレンダリング用。複雑な漢字の正確なレンダリングを実現。</p>
+    </div>
+  </div>
+
+  <h3>学習データ</h3>
+  <div class="stat-row">
+    <div class="stat-card"><span class="val" style="color:var(--c-accent);">2.5億</span><span class="lbl">画像テキストペア</span></div>
+    <div class="stat-card"><span class="val" style="color:var(--c-accent3);">70%</span><span class="lbl">中国語</span></div>
+    <div class="stat-card"><span class="val" style="color:var(--c-accent2);">30%</span><span class="lbl">英語</span></div>
+  </div>
+  <ul>
+    <li><strong>前処理</strong>: 重複排除、審美フィルタリング、不適切コンテンツ除去の多段階クリーニング</li>
+    <li><strong>知識融合</strong>: 「四次元トポロジカルネットワーク」による品質と知識の動的バランス</li>
+  </ul>
+
+  <h3>ポストトレーニング最適化</h3>
+  <ol class="steps">
+    <li><strong>Continue Training (CT) + SFT</strong> &mdash; 美的品質向上</li>
+    <li><strong>RLHF</strong> &mdash; 3つのリワードモデル使用（画像テキスト整合性RM、美的RM、テキストレンダリングRM）</li>
+    <li><strong>Prompt Engineering (PE)</strong> &mdash; ファインチューニングLLMで美的品質と多様性を改善</li>
+    <li><strong>Refinerモデル</strong> &mdash; 解像度アップスケーリング + 構造エラー修正</li>
+  </ol>
+
+  <h3>ベンチマーク成績</h3>
+  <table>
+    <thead><tr><th>ベンチマーク</th><th>結果</th></tr></thead>
+    <tbody>
+      <tr><td>EvalMuse総合スコア</td><td><strong class="cmp-best">0.8031（最高位）</strong></td></tr>
+      <tr><td>構造的側面</td><td><span class="tag tag-green">1位</span></td></tr>
+      <tr><td>画像テキスト整合性</td><td><span class="tag tag-teal">2位</span> Midjourney v6.1を上回る</td></tr>
+      <tr><td>審美性</td><td><span class="tag tag-teal">2位</span> Ideogram 2.0を上回る</td></tr>
+      <tr><td>テキストレンダリング</td><td><span class="tag tag-green">中英両言語で最高精度</span></td></tr>
+      <tr><td>HPSv2スコア</td><td><span class="tag tag-green">最高得点</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 3. Timeline -->
+<section id="timeline">
+  <h2><span class="icon" style="background:rgba(253,203,110,.2);color:#ffeaa7;">T</span> シリーズ進化タイムライン</h2>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-date">2023年初頭</div>
+      <div class="tl-title">Seedream 1.0</div>
+      <div class="tl-desc">中国語文字配置に特化</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2024年12月（論文 2025年3月）</div>
+      <div class="tl-title">Seedream 2.0 <span class="tag tag-purple">Current Focus</span></div>
+      <div class="tl-desc">バイリンガル基盤モデル、MMDiTアーキテクチャ、1億ユーザー達成</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2025年4月</div>
+      <div class="tl-title">Seedream 3.0</div>
+      <div class="tl-desc">2K解像度対応、4〜8倍高速化、混合解像度トレーニング</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2025年9月</div>
+      <div class="tl-title">Seedream 4.0</div>
+      <div class="tl-desc">画像生成+編集の統合、2K画像1.4秒生成、4K対応、ELOランキング1位</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2025年12月</div>
+      <div class="tl-title">Seedream 4.5</div>
+      <div class="tl-desc">4K解像度、テキストレンダリング94%精度、14枚同時参照画像</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2026年2月</div>
+      <div class="tl-title">Seedream 5.0 <span class="tag tag-pink">Latest</span></div>
+      <div class="tl-desc">Web検索統合（業界初）、論理的推論、ドメイン知識搭載</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2026年3月</div>
+      <div class="tl-title">Seedream 5.0 Lite</div>
+      <div class="tl-desc">軽量版、API価格$0.035/枚</div>
+    </div>
+  </div>
+
+  <h3>姉妹モデル</h3>
+  <table>
+    <thead><tr><th>モデル</th><th>用途</th><th>最新</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Seedream</strong></td><td>画像生成・編集</td><td>5.0 Lite</td></tr>
+      <tr><td><strong>Seedance</strong></td><td>動画生成</td><td>2.0</td></tr>
+      <tr><td><strong>Seaweed</strong></td><td>動画生成基盤（約70億パラメータ）</td><td>-</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 4. Access -->
+<section id="access">
+  <h2><span class="icon" style="background:rgba(0,184,148,.2);color:#55efc4;">&#9654;</span> アクセス方法・使い方</h2>
+
+  <h3>方法1: Dreamina（最も手軽・無料あり）</h3>
+  <div class="card">
+    <ol class="steps">
+      <li><a href="https://dreamina.capcut.com" target="_blank">dreamina.capcut.com</a> にアクセス</li>
+      <li>Googleアカウントで登録</li>
+      <li>「AI画像」をクリック</li>
+      <li>モデルのドロップダウンからSeedreamバージョンを選択</li>
+      <li>プロンプトを入力（日本語・英語・中国語対応）</li>
+      <li>アスペクト比と出力解像度を設定</li>
+      <li>「Create」ボタンで生成</li>
+      <li>生成画像をダウンロード</li>
+    </ol>
+    <p style="margin-top:1rem;"><span class="tag tag-green">FREE</span> <strong>毎日225クレジット無料</strong>（1生成 &cong; 1クレジット）</p>
+  </div>
+
+  <h3>方法2: API（BytePlus ModelArk）</h3>
+  <div class="card">
+    <ol class="steps">
+      <li><a href="https://console.byteplus.com" target="_blank">console.byteplus.com</a> でアカウント作成</li>
+      <li>ModelArkセクションでAPIキーを発行</li>
+      <li>モデルリストからSeedreamモデルを「Activate」</li>
+      <li>APIエンドポイントでText-to-Image / Image-to-Image を実行</li>
+    </ol>
+    <p style="margin-top:1rem;"><span class="tag tag-teal">TRIAL</span> <strong>無料トライアル: 200枚</strong></p>
+  </div>
+
+  <h3>方法3: サードパーティAPI</h3>
+  <table>
+    <thead><tr><th>プラットフォーム</th><th>対応Ver.</th><th>URL</th></tr></thead>
+    <tbody>
+      <tr><td>Together AI</td><td>4.0</td><td><a href="https://www.together.ai/models/bytedance-seedream-4-0" target="_blank">together.ai</a></td></tr>
+      <tr><td>fal.ai</td><td>4.0/4.5</td><td><a href="https://fal.ai/models/fal-ai/bytedance/seedream/" target="_blank">fal.ai</a></td></tr>
+      <tr><td>WaveSpeed AI</td><td>各種</td><td><a href="https://wavespeed.ai/collections/seedream" target="_blank">wavespeed.ai</a></td></tr>
+      <tr><td>getimg.ai</td><td>5.0 Lite</td><td><a href="https://getimg.ai/models/bytedance-seedream" target="_blank">getimg.ai</a></td></tr>
+      <tr><td>Replicate</td><td>4.0</td><td><a href="https://replicate.com/bytedance/seedream-4" target="_blank">replicate.com</a></td></tr>
+      <tr><td>Kie.ai</td><td>各種</td><td><a href="https://kie.ai/seedream-api" target="_blank">kie.ai</a></td></tr>
+      <tr><td>OpenRouter</td><td>4.5</td><td><a href="https://openrouter.ai/bytedance-seed/seedream-4.5" target="_blank">openrouter.ai</a></td></tr>
+    </tbody>
+  </table>
+
+  <h3>方法4: 即夢/Jimeng（中国版、フル機能）</h3>
+  <p><a href="https://jimeng.jianying.com" target="_blank">jimeng.jianying.com</a> &mdash; 中国電話番号が必要、月額69元〜、国際版より機能が豊富</p>
+</section>
+
+<!-- 5. Pricing -->
+<section id="pricing">
+  <h2><span class="icon" style="background:rgba(253,203,110,.2);color:#ffeaa7;">$</span> 料金体系</h2>
+
+  <h3>API料金（BytePlus ModelArk経由）</h3>
+  <table>
+    <thead><tr><th>モデル</th><th>料金/枚</th></tr></thead>
+    <tbody>
+      <tr><td>Seedream 3.0</td><td><strong>$0.03</strong></td></tr>
+      <tr><td>Seedream 4.0</td><td><strong>$0.03</strong></td></tr>
+      <tr><td>Seedream 4.5</td><td><strong>$0.04-0.045</strong></td></tr>
+      <tr><td>Seedream 5.0 Lite</td><td><strong>$0.035</strong></td></tr>
+    </tbody>
+  </table>
+
+  <h3>サブスクリプション（Dreamina経由）</h3>
+  <div class="card-grid">
+    <div class="card-sm" style="border-color:rgba(0,184,148,.3);">
+      <h4><span class="tag tag-green">FREE</span> 無料</h4>
+      <p>毎日225クレジット付与</p>
+    </div>
+    <div class="card-sm" style="border-color:rgba(108,92,231,.3);">
+      <h4><span class="tag tag-purple">PRO</span> ~$23.9-29.99/月</h4>
+      <p>商用ライセンス付き</p>
+    </div>
+    <div class="card-sm" style="border-color:rgba(253,121,168,.3);">
+      <h4><span class="tag tag-pink">MAX/TEAM</span> ~$63.9-99.99/月</h4>
+      <p>チーム向け、完全商用権利</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Prompt -->
+<section id="prompt">
+  <h2><span class="icon" style="background:rgba(253,121,168,.2);color:#fab1a0;">P</span> プロンプトエンジニアリング</h2>
+
+  <h3>基本構造</h3>
+  <p>Seedreamのプロンプト理解の優先順位:</p>
+  <div class="card" style="text-align:center;font-size:1.1rem;">
+    <strong style="color:var(--c-accent);">Subject</strong> &gt;
+    <strong style="color:var(--c-accent2);">Style</strong> &gt;
+    <strong style="color:var(--c-accent3);">Composition</strong> &gt;
+    <strong style="color:var(--c-accent4);">Lighting</strong>
+  </div>
+  <p>推奨フォーマット: <code>[アクション] + [対象物] + [属性/詳細]</code></p>
+  <pre><code>A girl in a lavish dress walking under a parasol along a tree-lined path, in the style of a Monet oil painting</code></pre>
+
+  <h3>ベストプラクティス</h3>
+  <table>
+    <thead><tr><th>項目</th><th>推奨</th></tr></thead>
+    <tbody>
+      <tr><td>語数</td><td><strong>30〜100語</strong>が最適</td></tr>
+      <tr><td>形容詞</td><td>3〜5個の的確な修飾語（20個の弱い形容詞より効果的）</td></tr>
+      <tr><td>テキスト挿入</td><td>ダブルクォーテーションで囲む（例: <code>"Hello World"</code>）</td></tr>
+      <tr><td>複数キャラ</td><td>参照画像にラベル付けしてプロンプトで参照</td></tr>
+      <tr><td>照明</td><td>golden hour, dramatic side lighting, soft diffused light</td></tr>
+      <tr><td>カメラ</td><td>shot on 85mm lens, shallow depth of field, 4K detail</td></tr>
+    </tbody>
+  </table>
+
+  <h3>ネガティブプロンプト（15〜25語推奨）</h3>
+  <div class="card-grid">
+    <div class="card-sm">
+      <h4>一般品質</h4>
+      <pre style="margin:0;font-size:.78rem;"><code>blurry, low resolution, noisy,
+jpeg artifacts, overexposed,
+underexposed, watermark, logo,
+signature</code></pre>
+    </div>
+    <div class="card-sm">
+      <h4>人体</h4>
+      <pre style="margin:0;font-size:.78rem;"><code>extra fingers, distorted hands,
+deformed eyes, asymmetrical face,
+bad anatomy, missing fingers,
+mutated limbs</code></pre>
+    </div>
+    <div class="card-sm">
+      <h4>品質調整</h4>
+      <pre style="margin:0;font-size:.78rem;"><code>pixelated, plastic skin,
+unrealistic shading,
+exaggerated proportions,
+oversaturated colors</code></pre>
+    </div>
+  </div>
+
+  <h3>解像度・アスペクト比</h3>
+  <table>
+    <thead><tr><th>用途</th><th>推奨比率</th></tr></thead>
+    <tbody>
+      <tr><td>ポートレート</td><td>4:5</td></tr>
+      <tr><td>プロダクト</td><td>3:2</td></tr>
+      <tr><td>グリッド</td><td>1:1</td></tr>
+      <tr><td>縦型動画</td><td>9:16</td></tr>
+      <tr><td>最大解像度</td><td><strong>4K (2048x2048)</strong></td></tr>
+    </tbody>
+  </table>
+
+  <h3>視覚レイヤー分解テクニック <span class="tag tag-yellow">MaisonAI</span></h3>
+  <p>プロンプトを以下のレイヤーで構築:</p>
+  <div class="card" style="display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;">
+    <span class="tag tag-purple">1. 被写体</span>
+    <span style="color:var(--c-text-sub);">&rarr;</span>
+    <span class="tag tag-teal">2. シーン</span>
+    <span style="color:var(--c-text-sub);">&rarr;</span>
+    <span class="tag tag-pink">3. 構図</span>
+    <span style="color:var(--c-text-sub);">&rarr;</span>
+    <span class="tag tag-yellow">4. 照明</span>
+    <span style="color:var(--c-text-sub);">&rarr;</span>
+    <span class="tag tag-green">5. レンズ/スタイル</span>
+    <span style="color:var(--c-text-sub);">&rarr;</span>
+    <span class="tag tag-red">6. カラーパレット</span>
+    <span style="color:var(--c-text-sub);">&rarr;</span>
+    <span class="tag tag-purple">7. 後処理</span>
+  </div>
+
+  <h3>一貫性キャラクター生成 <span class="tag tag-teal">Sider.ai</span></h3>
+  <ul>
+    <li>クリーンで正面向きの参照画像（1024x1024、影なし）を使用</li>
+    <li>外見/顔ロックを<strong>中〜高（70-85%）</strong>に設定</li>
+    <li>顔のジオメトリを尊重するよう指示</li>
+  </ul>
+</section>
+
+<!-- 7. ComfyUI -->
+<section id="comfyui">
+  <h2><span class="icon" style="background:rgba(0,206,201,.2);color:#81ecec;">C</span> ComfyUI統合・ワークフロー</h2>
+
+  <h3>セットアップ手順</h3>
+  <div class="card">
+    <ol class="steps">
+      <li>BytePlusコンソール（<a href="https://console.byteplus.com" target="_blank">console.byteplus.com</a>）でアカウント作成</li>
+      <li>ModelArkセクションでAPIキーを発行</li>
+      <li>環境変数に設定: <code>SEEDREAM_API_KEY</code>, <code>SEEDREAM_ENDPOINT</code></li>
+      <li>ComfyUIカスタムノードをクローン</li>
+      <li>custom_nodesディレクトリに配置、依存関係インストール</li>
+      <li><code>.env.example</code>を<code>.env</code>にコピーしてAPIキーを記入</li>
+    </ol>
+  </div>
+
+  <h3>カスタムノード</h3>
+  <div class="card-grid">
+    <div class="card-sm">
+      <h4>公式ノード</h4>
+      <p><a href="https://github.com/kookliu/ComfyUI-Custom-Nodes" target="_blank">kookliu/ComfyUI-Custom-Nodes</a></p>
+    </div>
+    <div class="card-sm">
+      <h4>即梦API版</h4>
+      <p><a href="https://github.com/fkxianzhou/ComfyUI-Jimeng-API" target="_blank">fkxianzhou/ComfyUI-Jimeng-API</a></p>
+    </div>
+  </div>
+
+  <h3>利用可能なワークフロー</h3>
+  <ul>
+    <li>テキスト &rarr; 画像生成</li>
+    <li>画像編集</li>
+    <li>最大5枚のリファレンス画像を使ったマルチリファレンス生成</li>
+    <li>バッチ自動化（CSV/JSONでプロンプト変数をスワップ &rarr; RESTエンドポイント経由）</li>
+  </ul>
+
+  <h3>送信パラメータ</h3>
+  <p><code>prompt</code> <code>negative_prompt</code> <code>width</code> <code>height</code> <code>steps</code> <code>cfg_scale</code> <code>seed</code></p>
+</section>
+
+<!-- 8. SeedEdit -->
+<section id="seededit">
+  <h2><span class="icon" style="background:rgba(253,121,168,.2);color:#fab1a0;">E</span> SeedEdit（画像編集機能）</h2>
+  <p>Seedream 2.0は、指示ベースの画像編集モデル「SeedEdit」に容易に適応可能。</p>
+
+  <div class="card-grid">
+    <div class="card-sm">
+      <h4>指示追従 + 一貫性</h4>
+      <p>バランスの取れた強力な編集能力</p>
+    </div>
+    <div class="card-sm">
+      <h4>合成 + 実写対応</h4>
+      <p>両方で優れた編集品質</p>
+    </div>
+    <div class="card-sm">
+      <h4>顔の類似性保持</h4>
+      <p>拡散損失+顔損失の組み合わせで解決</p>
+    </div>
+    <div class="card-sm">
+      <h4>SoTA超え</h4>
+      <p>学術・製品ベンチマークを上回る</p>
+    </div>
+  </div>
+
+  <h3>編集プロンプトの書き方</h3>
+  <table>
+    <thead><tr><th>カテゴリ</th><th>キーワード例</th></tr></thead>
+    <tbody>
+      <tr><td>アクション</td><td><code>remove</code> <code>replace</code> <code>add</code> <code>change</code> <code>transform</code></td></tr>
+      <tr><td>対象</td><td><code>background</code> <code>object</code> <code>text</code> <code>lighting</code></td></tr>
+      <tr><td>属性</td><td>色、スタイル、条件（例: <code>without distortions</code>）</td></tr>
+      <tr><td>位置</td><td>「左のキャラクター」「ボウルの中の赤いリンゴ」など具体的に</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Tip:</strong> 1つのプロンプトに多くの変更を詰め込まず、ステップに分割するのが効果的。</p>
+</section>
+
+<!-- 9. Seedance -->
+<section id="seedance">
+  <h2><span class="icon" style="background:rgba(253,203,110,.2);color:#ffeaa7;">V</span> 動画生成（Seedance 2.0）</h2>
+
+  <div class="stat-row">
+    <div class="stat-card"><span class="val" style="color:var(--c-accent);">4</span><span class="lbl">入力モダリティ</span></div>
+    <div class="stat-card"><span class="val" style="color:var(--c-accent2);">2K</span><span class="lbl">ネイティブ解像度</span></div>
+    <div class="stat-card"><span class="val" style="color:var(--c-accent3);">12</span><span class="lbl">同時リファレンス</span></div>
+    <div class="stat-card"><span class="val" style="color:var(--c-accent4);">9</span><span class="lbl">最大画像入力</span></div>
+  </div>
+
+  <h3>特徴</h3>
+  <ul>
+    <li><strong>4つの入力モダリティ同時受付</strong>: テキスト、画像（最大9枚）、動画クリップ（最大3本）、オーディオ（最大3トラック）</li>
+    <li><strong>オーディオ同期生成</strong>: 音声を後付けではなく同時生成</li>
+    <li><strong>マルチショット生成</strong>: ストーリーボードからシネマティックプレビュー</li>
+    <li><strong>キャラクター一貫性</strong>: @リファレンスシステムで複数角度の参照画像をバインド</li>
+  </ul>
+
+  <h3>映像制作での活用</h3>
+  <div class="card-grid">
+    <div class="card-sm"><h4>プリビジュアライゼーション</h4><p>ストーリーボードからのビジュアル化</p></div>
+    <div class="card-sm"><h4>カメラパス計画</h4><p>撮影アングルの事前確認</p></div>
+    <div class="card-sm"><h4>マルチシーン</h4><p>シーケンスの精査</p></div>
+    <div class="card-sm"><h4>ゲーム/アニメ</h4><p>開発のビジュアル化</p></div>
+  </div>
+
+  <h3>アクセス方法</h3>
+  <ul>
+    <li><strong>Dreamina</strong>: <a href="https://dreamina.capcut.com/tools/seedance-2-0" target="_blank">dreamina.capcut.com/tools/seedance-2-0</a></li>
+    <li><strong>CapCut</strong>: 動画編集アプリ内から利用</li>
+    <li><strong>API</strong>: Jimeng / Volcengine APIで提供</li>
+  </ul>
+
+  <h3>関連モデル: Seaweed</h3>
+  <p>約<strong>70億パラメータ</strong>のDiffusion Transformer動画生成基盤モデル。1000台のH100 GPU相当で学習。1280x720 (24fps) リアルタイム動画生成、2K QHDへのアップサンプル可能。<br>
+  <a href="https://seaweed.video/" target="_blank">seaweed.video</a></p>
+</section>
+
+<!-- 10. Comparison -->
+<section id="comparison">
+  <h2><span class="icon" style="background:rgba(108,92,231,.2);color:#a29bfe;">&#9878;</span> 競合モデルとの比較</h2>
+
+  <h3>総合比較表</h3>
+  <div style="overflow-x:auto;">
+  <table>
+    <thead><tr><th>観点</th><th>Seedream 2.0+</th><th>FLUX 2 Pro</th><th>Midjourney</th><th>DALL-E 3/4o</th><th>Stable Diffusion</th></tr></thead>
+    <tbody>
+      <tr><td>フォトリアリズム</td><td class="cmp-good">中〜高</td><td class="cmp-best">最高</td><td class="cmp-good">高</td><td class="cmp-good">高</td><td class="cmp-mid">中</td></tr>
+      <tr><td>アーティスティック</td><td class="cmp-good">中〜高</td><td class="cmp-good">高</td><td class="cmp-best">最高</td><td class="cmp-good">中〜高</td><td class="cmp-mid">中</td></tr>
+      <tr><td>テキストレンダリング</td><td class="cmp-best">最高（中英）</td><td class="cmp-good">高</td><td class="cmp-mid">中</td><td class="cmp-good">中〜高</td><td class="cmp-mid">低</td></tr>
+      <tr><td>バイリンガル対応</td><td class="cmp-best">最高</td><td class="cmp-mid">英語中心</td><td class="cmp-mid">英語中心</td><td class="cmp-good">多言語</td><td class="cmp-mid">英語中心</td></tr>
+      <tr><td>生成速度</td><td class="cmp-good">高速 (v4.0+)</td><td class="cmp-good">高速</td><td class="cmp-mid">中</td><td class="cmp-good">高速</td><td class="cmp-mid">構成依存</td></tr>
+      <tr><td>コスト</td><td class="cmp-best">低〜中</td><td class="cmp-mid">中</td><td class="cmp-mid">高</td><td class="cmp-mid">中</td><td class="cmp-best">低 (OSS)</td></tr>
+      <tr><td>オープンソース</td><td class="cmp-mid">非公開</td><td class="cmp-good">一部公開</td><td class="cmp-mid">非公開</td><td class="cmp-mid">非公開</td><td class="cmp-best">完全公開</td></tr>
+      <tr><td>画像編集統合</td><td class="cmp-best">内蔵</td><td class="cmp-mid">別途必要</td><td class="cmp-mid">限定的</td><td class="cmp-mid">限定的</td><td class="cmp-mid">別途必要</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>用途別推奨モデル</h3>
+  <table>
+    <thead><tr><th>ユースケース</th><th>推奨モデル</th><th>理由</th></tr></thead>
+    <tbody>
+      <tr><td>Eコマースヒーロー画像</td><td>Flux 2 Pro</td><td>鮮明なテクスチャ、正確なマテリアル</td></tr>
+      <tr><td>テキスト入り製品画像</td><td>Ideogram V3</td><td>テキスト配置の精度</td></tr>
+      <tr><td>大量ライフスタイル画像</td><td><strong style="color:var(--c-accent);">Seedream</strong></td><td>コスパが最も良い</td></tr>
+      <tr><td>芸術的・創造的作品</td><td>Midjourney</td><td>シネマティックな美学</td></tr>
+      <tr><td>中国語テキスト入り画像</td><td><strong style="color:var(--c-accent);">Seedream</strong></td><td>バイリンガルテキストレンダリング</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 11. Community -->
+<section id="community">
+  <h2><span class="icon" style="background:rgba(0,184,148,.2);color:#55efc4;">X</span> SNS・コミュニティの反応</h2>
+
+  <h3>X (Twitter) の主要インフルエンサー</h3>
+  <div class="quote-card">
+    <p>"Here's the Seedream 2.0 Rundown! Overall, this looks like an amazing model! ByteDance really cooked here!"</p>
+    <div class="source">@TheoMediaAI (Theoretically Media)</div>
+  </div>
+  <div class="quote-card">
+    <p>"seedream 2.0 is the first AI video model in a long while that I'm going to pay for through the API"</p>
+    <div class="source">@gavinpurcell (Gavin Purcell / AI For Humans Show)</div>
+  </div>
+
+  <table>
+    <thead><tr><th>アカウント</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td><strong>@Xianbao_QIAN</strong></td><td>論文公開を告知、技術コミュニティに拡散</td></tr>
+      <tr><td><strong>@koltregaskes</strong></td><td>Seedream 2.0画像生成モデルの情報共有</td></tr>
+      <tr><td><strong>@dreamina_ai</strong></td><td>Seedance 2.0 + Seedream 5.0 Lite公式発表</td></tr>
+      <tr><td><strong>@karim_yourself</strong></td><td>BytePlus Playgroundでの具体的な使い方を解説</td></tr>
+    </tbody>
+  </table>
+
+  <h3>肯定的な評価</h3>
+  <ul>
+    <li>「画像のリアリズムが驚異的で、本物との区別がほぼ不可能」</li>
+    <li>「スタイル転送、ブランドロゴ、クリエイティブポスターの処理が優秀」</li>
+    <li>「検閲が少なく、創造的自由度が高い」</li>
+    <li>TechRadar: 「<strong>これまで見た中で最高のAI画像ジェネレーター</strong>」</li>
+  </ul>
+
+  <h3>批判的な評価</h3>
+  <ul>
+    <li>「手、足、影、布地の細部ではNano Bananaの方がまだ強い」</li>
+    <li>「高スコアは拒否回数の少なさが一因」</li>
+    <li>「オープンソースでない点が残念」</li>
+    <li>「バズがマーケティング主導だ」という指摘も</li>
+  </ul>
+
+  <h3>中国語圏コミュニティ</h3>
+
+  <h4>Bilibili</h4>
+  <ul>
+    <li><a href="https://www.bilibili.com/video/BV1LcHzzrEiB/" target="_blank">「Nano Bananaを背刺する」Seedream 4.0深度評測動画</a></li>
+    <li><a href="https://www.bilibili.com/video/BV19LWGzPE9k/" target="_blank">「AI生成画像の新王」即梦Seedream 4.0全網最全玩法</a></li>
+    <li><a href="https://www.bilibili.com/video/BV1M8c7zSERT/" target="_blank">Seedream 5.0 二次元風景の季節変更応用例</a></li>
+    <li><a href="https://www.bilibili.com/video/BV1obWwzyEeu/" target="_blank">豆包APIバッチ画像生成ツール紹介</a></li>
+  </ul>
+
+  <h4>知乎 (Zhihu)</h4>
+  <ul>
+    <li><a href="https://zhuanlan.zhihu.com/p/29658716094" target="_blank">字節公開Seedream 2.0技術細節</a></li>
+    <li><a href="https://zhuanlan.zhihu.com/p/1949046485430834996" target="_blank">中国版Nano-Banana！即梦4.0完整使用指南</a></li>
+  </ul>
+
+  <h4>Douyin</h4>
+  <p>即梦AI公式アカウントがコンテンツ発信。コマースクリエイターが広告制作に活用し、<strong>制作コスト最大40%削減</strong>の報告あり。</p>
+
+  <h4>その他</h4>
+  <ul>
+    <li><strong>Seedance 2.0 Discord</strong>: <a href="https://discord.com/invite/zZFUeA8ZQF" target="_blank">discord.com/invite/zZFUeA8ZQF</a></li>
+    <li>Seedance 2.0は<strong>Elon Musk</strong>も関心を示したと報道。「ハリウッドを揺るがす」との評価も</li>
+  </ul>
+</section>
+
+<!-- 12. License -->
+<section id="license">
+  <h2><span class="icon" style="background:rgba(253,203,110,.2);color:#ffeaa7;">&#9878;</span> 商用利用・ライセンス</h2>
+
+  <table>
+    <thead><tr><th>プラン</th><th>商用利用</th><th>詳細</th></tr></thead>
+    <tbody>
+      <tr><td>無料</td><td><span class="tag tag-yellow">限定的</span></td><td>基本的な生成・利用のみ</td></tr>
+      <tr><td>有料（Pro以上）</td><td><span class="tag tag-green">完全な商用利用権</span></td><td>販売、クライアントワーク、商標登録可。帰属表示不要</td></tr>
+      <tr><td>API (BytePlus)</td><td><span class="tag tag-green">エンタープライズ</span></td><td>ModelArkの利用規約に準拠</td></tr>
+    </tbody>
+  </table>
+
+  <h3>注意事項</h3>
+  <ul>
+    <li>アップロードコンテンツにはプラットフォームへワールドワイド・非独占的・ロイヤリティフリーのライセンスが付与（利用規約）</li>
+    <li>2026年3月にハリウッドスタジオとの著作権紛争で一部APIが停止された経緯あり</li>
+  </ul>
+</section>
+
+<!-- 13. Limitations -->
+<section id="limitations">
+  <h2><span class="icon" style="background:rgba(225,112,85,.2);color:#ff7675;">!</span> 制限事項・注意点</h2>
+
+  <h3>Seedream 2.0固有</h3>
+  <div class="card-grid">
+    <div class="card-sm" style="border-color:rgba(225,112,85,.3);">
+      <h4>視覚的忠実度</h4>
+      <p>FLUX/Midjourneyに比べフォトリアリズムが劣る面あり（3.0以降で改善）</p>
+    </div>
+    <div class="card-sm" style="border-color:rgba(225,112,85,.3);">
+      <h4>推論速度</h4>
+      <p>競合に比べ不利（3.0で4〜8倍に高速化）</p>
+    </div>
+    <div class="card-sm" style="border-color:rgba(225,112,85,.3);">
+      <h4>非オープンソース</h4>
+      <p>モデルウェイトは非公開</p>
+    </div>
+    <div class="card-sm" style="border-color:rgba(225,112,85,.3);">
+      <h4>2.0単体API無し</h4>
+      <p>技術は後続バージョンに統合済み</p>
+    </div>
+  </div>
+
+  <h3>シリーズ全体</h3>
+  <ul>
+    <li>小さい文字の繰り返し・劣化が発生する場合あり</li>
+    <li>画像編集精度の限界</li>
+    <li>ぼかし・クロッピング問題（4.5で時折発生）</li>
+    <li>AI生成感が残る場合あり</li>
+    <li>人体プロポーション問題</li>
+    <li>地域制限（一部機能は中国国内版のみ）</li>
+    <li>BytePlus APIにデフォルトのコンテンツプレフィルタースイッチあり</li>
+  </ul>
+</section>
+
+<!-- 14. Ecosystem -->
+<section id="ecosystem">
+  <h2><span class="icon" style="background:rgba(108,92,231,.2);color:#a29bfe;">&#9851;</span> プラットフォーム関係図</h2>
+
+  <div class="tree">
+<span class="root">ByteDance Seedチーム</span>
+  <span class="branch">&#9500;&#9472;&#9472; Seedream</span>（画像生成モデル）
+  <span class="leaf">&#9474;     &#9500;&#9472;&#9472; Dreamina / 即梦 / Jimeng</span>（コンシューマー向け）
+  <span class="leaf">&#9474;     &#9500;&#9472;&#9472; CapCut / 剪映</span>（動画編集アプリ内統合）
+  <span class="leaf">&#9474;     &#9500;&#9472;&#9472; BytePlus / ModelArk</span>（エンタープライズAPI）
+  <span class="leaf">&#9474;     &#9500;&#9472;&#9472; 小云雀 / Oriental Skylark</span>（中国国内）
+  <span class="leaf">&#9474;     &#9492;&#9472;&#9472; サードパーティ</span>（fal.ai, Together AI, Replicate等）
+  <span class="branch">&#9500;&#9472;&#9472; Seedance</span>（動画生成モデル）
+  <span class="leaf">&#9474;     &#9492;&#9472;&#9472; 上記と同じプラットフォームで提供</span>
+  <span class="branch">&#9500;&#9472;&#9472; Seaweed</span>（動画生成基盤モデル）
+  <span class="branch">&#9492;&#9472;&#9472; Doubao / 豆包</span>（AIアシスタント - Seedreamと連携）
+  </div>
+</section>
+
+<!-- 15. Links -->
+<section id="links">
+  <h2><span class="icon" style="background:rgba(0,206,201,.2);color:#81ecec;">&#128279;</span> 参考リンク集</h2>
+
+  <h3>論文</h3>
+  <div class="link-group">
+    <a href="https://arxiv.org/abs/2503.07703" target="_blank" class="link-item"><span class="link-icon">A</span> Seedream 2.0 (arXiv)</a>
+    <a href="https://arxiv.org/html/2503.07703v1" target="_blank" class="link-item"><span class="link-icon">H</span> Seedream 2.0 (HTML版)</a>
+    <a href="https://arxiv.org/abs/2504.11346" target="_blank" class="link-item"><span class="link-icon">A</span> Seedream 3.0 Technical Report</a>
+    <a href="https://huggingface.co/papers/2503.07703" target="_blank" class="link-item"><span class="link-icon">HF</span> HuggingFace Papers</a>
+    <a href="https://www.researchgate.net/publication/389748435" target="_blank" class="link-item"><span class="link-icon">R</span> ResearchGate</a>
+  </div>
+
+  <h3>公式サイト</h3>
+  <div class="link-group">
+    <a href="https://seed.bytedance.com/en/" target="_blank" class="link-item"><span class="link-icon">B</span> ByteDance Seed公式</a>
+    <a href="https://dreamina.capcut.com" target="_blank" class="link-item"><span class="link-icon">D</span> Dreamina公式</a>
+    <a href="https://jimeng.jianying.com" target="_blank" class="link-item"><span class="link-icon">J</span> 即梦 (Jimeng)</a>
+    <a href="https://console.byteplus.com" target="_blank" class="link-item"><span class="link-icon">+</span> BytePlus ModelArk</a>
+    <a href="https://seaweed.video/" target="_blank" class="link-item"><span class="link-icon">S</span> Seaweed</a>
+  </div>
+
+  <h3>日本語チュートリアル</h3>
+  <div class="link-group">
+    <a href="https://dreamina.capcut.com/ja-jp/resource/how-to-use-seedream-5-0" target="_blank" class="link-item"><span class="link-icon">JP</span> Seedream 5.0使い方 (公式)</a>
+    <a href="https://ai-workstyle.com/ai-seedream4-0/" target="_blank" class="link-item"><span class="link-icon">JP</span> Seedream 4.0完全解説</a>
+    <a href="https://ai-gaido.com/seedream-4-0-use-guide/" target="_blank" class="link-item"><span class="link-icon">JP</span> Seedream 4.0使い方ガイド</a>
+    <a href="https://weel.co.jp/media/tech/seedream-4-5/" target="_blank" class="link-item"><span class="link-icon">JP</span> Seedream 4.5解説 (WEEL)</a>
+    <a href="https://note.com/seal309midorin/n/n4cd3147d4c6d" target="_blank" class="link-item"><span class="link-icon">JP</span> ComfyUIで使う方法</a>
+    <a href="https://note.com/genel/n/n97c215fddc7c" target="_blank" class="link-item"><span class="link-icon">JP</span> プロンプトのコツ</a>
+    <a href="https://note.com/tasty_dunlin998/n/n5472617b9feb" target="_blank" class="link-item"><span class="link-icon">JP</span> プロンプト攻略ガイド</a>
+    <a href="https://romptn.com/article/73378" target="_blank" class="link-item"><span class="link-icon">JP</span> romptn Magazine解説</a>
+    <a href="https://maisonai.io/en/blogs/guidebook/seedream-imagegereration-2" target="_blank" class="link-item"><span class="link-icon">JP</span> 実践編プロンプト (MaisonAI)</a>
+  </div>
+
+  <h3>英語チュートリアル</h3>
+  <div class="link-group">
+    <a href="https://wavespeed.ai/blog/posts/seedream-4-0-to-5-0-complete-tutorial-image-generation-editing/" target="_blank" class="link-item"><span class="link-icon">EN</span> Complete Tutorial 4.0→5.0</a>
+    <a href="https://wavespeed.ai/blog/posts/seedream-5-0-preview-complete-guide-intelligent-image-generation/" target="_blank" class="link-item"><span class="link-icon">EN</span> Seedream 5.0 Complete Guide</a>
+    <a href="https://getimg.ai/blog/guide-to-bytedance-seedream-4-ai-image-model" target="_blank" class="link-item"><span class="link-icon">EN</span> Guide to Seedream 4</a>
+    <a href="https://blog.segmind.com/mastering-seedream-prompt-engineering-guide/" target="_blank" class="link-item"><span class="link-icon">EN</span> Prompt Engineering Guide</a>
+    <a href="https://fal.ai/learn/devs/seedream-v4-5-prompt-guide" target="_blank" class="link-item"><span class="link-icon">EN</span> v4.5 Prompt Guide (fal.ai)</a>
+    <a href="https://docs.byteplus.com/en/docs/ModelArk/1829186" target="_blank" class="link-item"><span class="link-icon">EN</span> 公式Prompt Guide</a>
+    <a href="https://sider.ai/blog/ai-tools/seedream-4-0-prompt-book-70-styles-for-portraits-fashion-and-products" target="_blank" class="link-item"><span class="link-icon">EN</span> 70 Styles Prompt Book</a>
+    <a href="https://sider.ai/blog/ai-tools/how-to-use-seedream-4-0-for-consistent-characters-a-step-by-step-playbook" target="_blank" class="link-item"><span class="link-icon">EN</span> Consistent Characters Guide</a>
+    <a href="https://artlist.io/blog/how-to-use-seedream-4-5/" target="_blank" class="link-item"><span class="link-icon">EN</span> How to use Seedream 4.5</a>
+    <a href="https://docs.byteplus.com/en/docs/ModelArk/1824121" target="_blank" class="link-item"><span class="link-icon">EN</span> API Guide 4.0-5.0</a>
+  </div>
+
+  <h3>ComfyUI</h3>
+  <div class="link-group">
+    <a href="https://blog.comfy.org/p/seedream-40-now-available-in-comfyui" target="_blank" class="link-item"><span class="link-icon">C</span> 公式ブログ Seedream 4.0</a>
+    <a href="https://blog.comfy.org/p/seedream-50-lite-now-available-in" target="_blank" class="link-item"><span class="link-icon">C</span> 公式ブログ 5.0 Lite</a>
+    <a href="https://github.com/kookliu/ComfyUI-Custom-Nodes" target="_blank" class="link-item"><span class="link-icon">GH</span> カスタムノード (kookliu)</a>
+    <a href="https://github.com/fkxianzhou/ComfyUI-Jimeng-API" target="_blank" class="link-item"><span class="link-icon">GH</span> Jimeng API版</a>
+    <a href="https://civitai.com/models/1968364" target="_blank" class="link-item"><span class="link-icon">Ci</span> Civitaiワークフロー</a>
+    <a href="https://www.comfy.org/workflows/model/seedream-4-0/" target="_blank" class="link-item"><span class="link-icon">C</span> 無料テンプレート</a>
+  </div>
+
+  <h3>API・サードパーティ</h3>
+  <div class="link-group">
+    <a href="https://www.together.ai/models/bytedance-seedream-4-0" target="_blank" class="link-item"><span class="link-icon">T</span> Together AI</a>
+    <a href="https://fal.ai/models/fal-ai/bytedance/seedream/" target="_blank" class="link-item"><span class="link-icon">F</span> fal.ai</a>
+    <a href="https://replicate.com/bytedance/seedream-4" target="_blank" class="link-item"><span class="link-icon">R</span> Replicate</a>
+    <a href="https://kie.ai/seedream-api" target="_blank" class="link-item"><span class="link-icon">K</span> Kie.ai</a>
+    <a href="https://openrouter.ai/bytedance-seed/seedream-4.5" target="_blank" class="link-item"><span class="link-icon">O</span> OpenRouter</a>
+    <a href="https://github.com/wwwzhouhui/jimeng-free-api-all" target="_blank" class="link-item"><span class="link-icon">GH</span> Jimeng無料API</a>
+  </div>
+
+  <h3>中国語圏リソース</h3>
+  <div class="link-group">
+    <a href="https://zhuanlan.zhihu.com/p/29658716094" target="_blank" class="link-item"><span class="link-icon">ZH</span> 知乎: 2.0技術解説</a>
+    <a href="https://zhuanlan.zhihu.com/p/1949046485430834996" target="_blank" class="link-item"><span class="link-icon">ZH</span> 知乎: 即梦4.0使用指南</a>
+    <a href="https://www.bilibili.com/video/BV1LcHzzrEiB/" target="_blank" class="link-item"><span class="link-icon">B</span> Bilibili: 4.0深度評測</a>
+    <a href="https://www.bilibili.com/video/BV19LWGzPE9k/" target="_blank" class="link-item"><span class="link-icon">B</span> Bilibili: 全網最全玩法</a>
+    <a href="https://rar.design/posts/jimeng-ai-dreamina-guide" target="_blank" class="link-item"><span class="link-icon">ZH</span> 即夢AI完整介紹</a>
+    <a href="https://eu.36kr.com/en/p/3677025348395653" target="_blank" class="link-item"><span class="link-icon">ZH</span> 36Kr: 5.0リリース</a>
+  </div>
+
+  <h3>比較・レビュー</h3>
+  <div class="link-group">
+    <a href="https://imagewise.app/blog/flux-seedream-midjourney-gpt-image-vs-gemini" target="_blank" class="link-item"><span class="link-icon">VS</span> FLUX vs Seedream vs MJ vs GPT</a>
+    <a href="https://artificialanalysis.ai/image/models" target="_blank" class="link-item"><span class="link-icon">VS</span> AI Image Model Comparison</a>
+    <a href="https://blog.segmind.com/seedream-5-0-lite-vs-nano-banana-2-a-text-rendering-showdown-across-7-real-world-use-cases/" target="_blank" class="link-item"><span class="link-icon">VS</span> 5.0 vs Nano Banana 2</a>
+    <a href="https://www.allaboutai.com/ai-reviews/seedream/" target="_blank" class="link-item"><span class="link-icon">R</span> Community Review</a>
+    <a href="https://www.techradar.com/ai-platforms-assistants/tiktok-creators-new-ai-image-generator-is-the-best-ive-ever-seen-and-its-terrifying" target="_blank" class="link-item"><span class="link-icon">R</span> TechRadar Review</a>
+  </div>
+</section>
+
+<footer style="text-align:center;padding:3rem 0;color:var(--c-text-sub);font-size:.8rem;border-top:1px solid var(--c-border);">
+  SEEDREAM 2.0 Research Report &mdash; Compiled 2026-04-05<br>
+  Sources: arXiv, ByteDance Seed, Dreamina, X/Twitter, Bilibili, Zhihu, Reddit, YouTube, Tech Blogs
+</footer>
+
+</main>
+</div>
+
+<button class="scroll-top" onclick="window.scrollTo({top:0})" aria-label="Scroll to top">&uarr;</button>
+
+<script>
+// Scroll-to-top visibility
+const btn = document.querySelector('.scroll-top');
+window.addEventListener('scroll', () => {
+  btn.classList.toggle('visible', window.scrollY > 400);
+});
+
+// Active sidebar link
+const links = document.querySelectorAll('.sidebar a');
+const sections = document.querySelectorAll('section[id]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>

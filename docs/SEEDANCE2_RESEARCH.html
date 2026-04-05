@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEEDANCE 2.0 総合リサーチレポート</title>
+<style>
+:root{--c-bg:#08080e;--c-surface:#10101a;--c-surface2:#181824;--c-border:#282840;--c-text:#dde0ea;--c-text-sub:#7c80a0;--c-accent:#e74c3c;--c-accent2:#e67e22;--c-accent3:#9b59b6;--c-accent4:#3498db;--c-link:#74b9ff;--c-positive:#2ecc71;--c-negative:#e74c3c;--radius:12px;--shadow:0 4px 24px rgba(0,0,0,.5)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Noto Sans JP',sans-serif;background:var(--c-bg);color:var(--c-text);line-height:1.7;overflow-x:hidden}
+a{color:var(--c-link);text-decoration:none;transition:opacity .2s}a:hover{opacity:.8}
+.hero{position:relative;min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4rem 2rem;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 30% 40%,rgba(231,76,60,.2),transparent),radial-gradient(ellipse 60% 50% at 70% 60%,rgba(230,126,34,.15),transparent),radial-gradient(ellipse 40% 30% at 50% 80%,rgba(155,89,182,.12),transparent);z-index:0}
+.hero>*{position:relative;z-index:1}
+.hero-badge{display:inline-block;padding:.4rem 1.2rem;border-radius:99px;background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.4);color:var(--c-accent);font-size:.85rem;font-weight:600;letter-spacing:.05em;margin-bottom:1.5rem}
+.hero h1{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:800;background:linear-gradient(135deg,#fff 0%,#e74c3c 40%,#e67e22 70%,#9b59b6 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:1rem}
+.hero p{font-size:1.1rem;color:var(--c-text-sub);max-width:640px}
+.hero-meta{margin-top:2rem;display:flex;gap:2rem;flex-wrap:wrap;justify-content:center}
+.hero-stat{text-align:center}.hero-stat .num{display:block;font-size:2rem;font-weight:800;color:var(--c-accent2)}.hero-stat .label{font-size:.78rem;color:var(--c-text-sub);text-transform:uppercase;letter-spacing:.08em}
+.wrapper{display:grid;grid-template-columns:260px 1fr;max-width:1400px;margin:0 auto;gap:0}
+@media(max-width:900px){.wrapper{grid-template-columns:1fr}.sidebar{display:none}}
+.sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;padding:2rem 1rem 2rem 1.5rem;border-right:1px solid var(--c-border);background:var(--c-surface);scrollbar-width:thin;scrollbar-color:var(--c-border) transparent}
+.sidebar h3{font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;color:var(--c-text-sub);margin-bottom:1rem}
+.sidebar a{display:block;padding:.45rem .6rem;border-radius:6px;font-size:.82rem;color:var(--c-text-sub);transition:all .2s;border-left:2px solid transparent}
+.sidebar a:hover,.sidebar a.active{background:rgba(231,76,60,.1);color:var(--c-text);border-left-color:var(--c-accent)}
+main{padding:3rem 3rem 6rem;max-width:960px}@media(max-width:900px){main{padding:2rem 1.2rem 4rem}}
+section{margin-bottom:4rem;scroll-margin-top:2rem}
+section h2{font-size:1.6rem;font-weight:700;margin-bottom:1.5rem;padding-bottom:.6rem;border-bottom:2px solid var(--c-border);display:flex;align-items:center;gap:.6rem}
+section h2 .icon{width:28px;height:28px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+section h3{font-size:1.15rem;font-weight:600;margin:2rem 0 .8rem;color:var(--c-accent2)}
+section h4{font-size:1rem;font-weight:600;margin:1.2rem 0 .5rem;color:var(--c-accent3)}
+p{margin-bottom:.8rem}ul,ol{margin-left:1.2rem;margin-bottom:1rem}li{margin-bottom:.3rem}strong{color:#fff}
+code{background:var(--c-surface2);padding:.15em .4em;border-radius:4px;font-size:.9em;font-family:'Cascadia Code','Fira Code',monospace}
+pre{background:var(--c-surface2);border:1px solid var(--c-border);border-radius:var(--radius);padding:1.2rem;overflow-x:auto;margin-bottom:1rem;font-size:.85rem;line-height:1.5}pre code{background:none;padding:0}
+.card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem;transition:border-color .2s}.card:hover{border-color:var(--c-accent)}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-bottom:1.5rem}
+.card-sm{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:1.2rem}.card-sm h4{margin:0 0 .4rem;color:var(--c-text);font-size:.95rem}.card-sm p{margin:0;font-size:.85rem;color:var(--c-text-sub)}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.8rem;margin-bottom:1.5rem}
+.stat-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:1rem;text-align:center}.stat-card .val{font-size:1.6rem;font-weight:800;display:block}.stat-card .lbl{font-size:.75rem;color:var(--c-text-sub);margin-top:.2rem}
+table{width:100%;border-collapse:collapse;margin-bottom:1.5rem;font-size:.88rem}
+thead th{text-align:left;padding:.7rem .8rem;background:var(--c-surface2);border-bottom:2px solid var(--c-accent);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--c-text-sub);white-space:nowrap}
+td{padding:.6rem .8rem;border-bottom:1px solid var(--c-border);vertical-align:top}tbody tr:hover{background:rgba(231,76,60,.04)}
+.tag{display:inline-block;padding:.2rem .6rem;border-radius:99px;font-size:.72rem;font-weight:600;letter-spacing:.04em}
+.tag-red{background:rgba(231,76,60,.2);color:#ff6b6b}.tag-orange{background:rgba(230,126,34,.15);color:#f0a858}.tag-purple{background:rgba(155,89,182,.15);color:#c39bd3}.tag-blue{background:rgba(52,152,219,.15);color:#85c1e9}.tag-green{background:rgba(46,204,113,.15);color:#58d68d}.tag-yellow{background:rgba(241,196,15,.15);color:#f7dc6f}
+.timeline{position:relative;padding-left:2.2rem;margin-bottom:2rem}
+.timeline::before{content:'';position:absolute;left:8px;top:4px;bottom:4px;width:2px;background:linear-gradient(180deg,var(--c-accent),var(--c-accent2),var(--c-accent3));border-radius:2px}
+.tl-item{position:relative;margin-bottom:1.4rem}
+.tl-item::before{content:'';position:absolute;left:-2.2rem;top:.5rem;width:10px;height:10px;border-radius:50%;background:var(--c-accent);border:2px solid var(--c-bg);box-shadow:0 0 0 3px rgba(231,76,60,.3)}
+.tl-item:nth-child(2)::before{background:var(--c-accent2)}.tl-item:nth-child(3)::before{background:var(--c-accent3)}
+.tl-date{font-size:.78rem;color:var(--c-accent);font-weight:600}.tl-title{font-weight:700;color:#fff}.tl-desc{font-size:.85rem;color:var(--c-text-sub)}
+.quote-card{border-left:3px solid var(--c-accent);background:var(--c-surface);padding:1rem 1.2rem;border-radius:0 var(--radius) var(--radius) 0;margin-bottom:.8rem;font-style:italic;color:var(--c-text-sub)}
+.quote-card .source{font-style:normal;font-size:.8rem;color:var(--c-accent2);margin-top:.4rem;font-weight:600}
+.steps{counter-reset:step;list-style:none;margin-left:0}.steps li{counter-increment:step;position:relative;padding-left:2.8rem;margin-bottom:.8rem}
+.steps li::before{content:counter(step);position:absolute;left:0;top:.1rem;width:1.8rem;height:1.8rem;border-radius:50%;background:var(--c-accent);color:#fff;font-weight:700;font-size:.8rem;display:flex;align-items:center;justify-content:center}
+.tree{font-family:'Cascadia Code','Fira Code',monospace;font-size:.85rem;background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:1.5rem;line-height:1.8;margin-bottom:1.5rem;overflow-x:auto}
+.tree .root{color:var(--c-accent2);font-weight:700}.tree .branch{color:var(--c-accent3)}.tree .leaf{color:var(--c-text-sub)}
+.cmp-best{color:var(--c-positive);font-weight:700}.cmp-good{color:var(--c-accent2)}.cmp-mid{color:var(--c-text-sub)}
+.link-group{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.6rem;margin-bottom:1.5rem}
+.link-item{display:flex;align-items:center;gap:.6rem;padding:.6rem .8rem;background:var(--c-surface);border:1px solid var(--c-border);border-radius:8px;font-size:.82rem;transition:border-color .2s}.link-item:hover{border-color:var(--c-accent)}
+.link-icon{width:24px;height:24px;border-radius:4px;background:var(--c-surface2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.7rem}
+.scroll-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;border-radius:50%;background:var(--c-accent);color:#fff;border:none;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s;z-index:99;box-shadow:var(--shadow)}.scroll-top.visible{opacity:1}
+.arch-diagram{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem;text-align:center}
+.arch-row{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;margin-bottom:.5rem}
+.arch-box{padding:.6rem 1rem;border-radius:8px;font-size:.8rem;font-weight:600;border:1px solid}
+.arch-arrow{color:var(--c-text-sub);font-size:1.4rem;margin:.3rem 0}
+.ab-dit{background:rgba(231,76,60,.12);border-color:rgba(231,76,60,.3);color:#ff6b6b}
+.ab-enc{background:rgba(230,126,34,.12);border-color:rgba(230,126,34,.3);color:#f0a858}
+.ab-vae{background:rgba(155,89,182,.12);border-color:rgba(155,89,182,.3);color:#c39bd3}
+.ab-rlhf{background:rgba(52,152,219,.12);border-color:rgba(52,152,219,.3);color:#85c1e9}
+.ab-ref{background:rgba(46,204,113,.12);border-color:rgba(46,204,113,.3);color:#58d68d}
+.warn-banner{background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.3);border-radius:var(--radius);padding:1rem 1.2rem;margin-bottom:1.5rem;font-size:.9rem}
+</style>
+</head>
+<body>
+<header class="hero">
+  <span class="hero-badge">ByteDance Seed Team &mdash; Video Generation</span>
+  <h1>SEEDANCE 2.0<br>総合リサーチレポート</h1>
+  <p>「デジタル映画監督」&mdash; テキスト・画像・動画・音声の4モダリティ統合。<br>ネイティブ音声同時生成、マルチショットストーリーテリング。</p>
+  <div class="hero-meta">
+    <div class="hero-stat"><span class="num">#1</span><span class="label">T2V &amp; I2V Elo</span></div>
+    <div class="hero-stat"><span class="num">12</span><span class="label">Max Reference Files</span></div>
+    <div class="hero-stat"><span class="num">6.77億</span><span class="label">春晩視聴者</span></div>
+    <div class="hero-stat"><span class="num">5億</span><span class="label">霍去病 再生数</span></div>
+  </div>
+</header>
+<div class="wrapper">
+<nav class="sidebar">
+  <h3>Contents</h3>
+  <a href="#overview">1. 概要</a>
+  <a href="#architecture">2. アーキテクチャ</a>
+  <a href="#timeline">3. バージョン進化</a>
+  <a href="#access">4. アクセス方法</a>
+  <a href="#pricing">5. 料金体系</a>
+  <a href="#prompt">6. プロンプト</a>
+  <a href="#multishot">7. マルチショット</a>
+  <a href="#character">8. キャラクター一貫性</a>
+  <a href="#audio">9. オーディオ同期</a>
+  <a href="#comparison">10. 競合比較</a>
+  <a href="#community">11. SNS・バズ</a>
+  <a href="#hollywood">12. ハリウッド問題</a>
+  <a href="#limitations">13. 制限事項</a>
+  <a href="#ecosystem">14. エコシステム</a>
+  <a href="#links">15. 参考リンク集</a>
+</nav>
+<main>
+
+<section id="overview">
+  <h2><span class="icon" style="background:rgba(231,76,60,.2);color:#ff6b6b;">V</span> Seedance 2.0とは何か</h2>
+  <p>ByteDance Seedチームが<strong>2026年2月8日</strong>にリリースした次世代AI動画生成モデル。「<strong>デジタル映画監督</strong>」の異名を持つ。</p>
+  <div class="card" style="text-align:center;">
+    <p style="margin:0;"><strong>業界初の3つの特徴</strong></p>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:.8rem;">
+      <span class="tag tag-red">ネイティブ音声映像同時生成</span>
+      <span class="tag tag-orange">マルチショットストーリーテリング</span>
+      <span class="tag tag-purple">8言語音素レベルリップシンク</span>
+    </div>
+  </div>
+  <div class="stat-row">
+    <div class="stat-card"><span class="val" style="color:var(--c-accent);">Elo 1273</span><span class="lbl">T2V Arena #1</span></div>
+    <div class="stat-card"><span class="val" style="color:var(--c-accent2);">Elo 1356</span><span class="lbl">I2V Arena #1</span></div>
+    <div class="stat-card"><span class="val" style="color:var(--c-accent3);">8.26/10</span><span class="lbl">Curious Refuge</span></div>
+    <div class="stat-card"><span class="val" style="color:var(--c-accent4);">30%</span><span class="lbl">高速化 vs 1.5</span></div>
+  </div>
+  <p>CCTV春節晩会で<strong>6億7700万人</strong>が視聴。AI短編ドラマ「霍去病」が<strong>5億再生</strong>突破。中国では「第二のDeepSeek」と称される。</p>
+</section>
+
+<section id="architecture">
+  <h2><span class="icon" style="background:rgba(230,126,34,.2);color:#f0a858;">A</span> 技術アーキテクチャ</h2>
+  <h3>Dual-Branch DiT</h3>
+  <div class="arch-diagram">
+    <div class="arch-row">
+      <div class="arch-box ab-enc">テキストプロンプト</div>
+      <div class="arch-box ab-enc">画像 (max 9)</div>
+      <div class="arch-box ab-enc">動画 (max 3)</div>
+      <div class="arch-box ab-enc">音声 (max 3)</div>
+    </div>
+    <div class="arch-arrow">&darr; 共有表現空間にエンコード</div>
+    <div class="arch-row">
+      <div class="arch-box ab-dit">DiTブランチ<br><small>空間生成（テクスチャ/照明/ディテール）</small></div>
+      <div class="arch-box ab-vae">RayFlowブランチ<br><small>時間的整合性（モーション/物理/遷移）</small></div>
+    </div>
+    <div class="arch-arrow">&darr; Attention Bridge（ミリ秒レベル同期）</div>
+    <div class="arch-row">
+      <div class="arch-box ab-rlhf">映像出力 (max 2K)</div>
+      <div class="arch-box ab-ref">音声出力（セリフ+環境音+BGM）</div>
+    </div>
+  </div>
+  <div class="stat-row">
+    <div class="stat-card"><span class="val" style="color:var(--c-accent);">96GB+</span><span class="lbl">VRAM (Full)</span></div>
+    <div class="stat-card"><span class="val" style="color:var(--c-accent2);">12B</span><span class="lbl">Alive (OSS)</span></div>
+    <div class="stat-card"><span class="val" style="color:var(--c-accent3);">4-15s</span><span class="lbl">動画長</span></div>
+    <div class="stat-card"><span class="val" style="color:var(--c-accent4);">6</span><span class="lbl">アスペクト比</span></div>
+  </div>
+  <h3>ネイティブ音声生成（ジョイントディフュージョン）</h3>
+  <div class="card-grid">
+    <div class="card-sm"><h4>セリフ</h4><p>精密リップシンク、多言語・方言対応</p></div>
+    <div class="card-sm"><h4>環境音</h4><p>空間特性に合致した音響</p></div>
+    <div class="card-sm"><h4>効果音</h4><p>フレーム単位で映像同期</p></div>
+    <div class="card-sm"><h4>BGM</h4><p>感情的ビートに反応</p></div>
+  </div>
+</section>
+
+<section id="timeline">
+  <h2><span class="icon" style="background:rgba(155,89,182,.2);color:#c39bd3;">T</span> バージョン進化</h2>
+  <div class="timeline">
+    <div class="tl-item"><div class="tl-date">2025年6月</div><div class="tl-title">Seedance 1.0</div><div class="tl-desc">テキスト/画像&rarr;動画、1080p/41.4秒、約10倍推論高速化</div></div>
+    <div class="tl-item"><div class="tl-date">2025年12月</div><div class="tl-title">Seedance 1.5 Pro</div><div class="tl-desc">ネイティブ音声導入、DB-DiT（45億パラメータ）、クロスモーダルジョイント</div></div>
+    <div class="tl-item"><div class="tl-date">2026年2月</div><div class="tl-title">Seedance 2.0 <span class="tag tag-red">Latest</span></div><div class="tl-desc">統一マルチモーダル、4種入力同時、2K解像度、30%高速化、ディレクターレベル制御</div></div>
+  </div>
+  <h3>1.5 &rarr; 2.0 の主要進化</h3>
+  <table>
+    <thead><tr><th>観点</th><th>1.5 Pro</th><th>2.0</th></tr></thead>
+    <tbody>
+      <tr><td>入力</td><td>個別パイプライン</td><td><strong>4種マルチモーダル統合</strong></td></tr>
+      <tr><td>音声</td><td>後付け（2倍コスト）</td><td><strong>ネイティブ同時生成</strong></td></tr>
+      <tr><td>音声精度</td><td>大まかなイベント同期</td><td><strong>布の擦れ音レベル</strong></td></tr>
+      <tr><td>モーション</td><td>複雑で破綻</td><td><strong>フィギュアスケートも処理</strong></td></tr>
+      <tr><td>マルチショット</td><td>単一ショット</td><td><strong>ショット間一貫性維持</strong></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="access">
+  <h2><span class="icon" style="background:rgba(46,204,113,.2);color:#58d68d;">&#9654;</span> アクセス方法</h2>
+  <div class="warn-banner"><strong>注意:</strong> 公式APIはハリウッド著作権紛争により一般公開停止中（2026年4月時点）。Dreamina経由またはサードパーティAPIでアクセス可能。</div>
+  <h3>Dreamina（最も手軽）</h3>
+  <div class="card">
+    <ol class="steps">
+      <li><a href="https://dreamina.capcut.com" target="_blank">dreamina.capcut.com</a> にアクセス、サインアップ</li>
+      <li>「AI Video」&rarr;「Seedance 2.0」を選択</li>
+      <li>入力モードを選択（首尾フレーム or 全能参照）</li>
+      <li>リファレンス素材をアップロード（最大12ファイル）</li>
+      <li><code>@Image1</code>, <code>@Video1</code>, <code>@Audio1</code> タグを使ったプロンプトを記述</li>
+      <li>出力設定（4-15秒、解像度、アスペクト比）</li>
+      <li>Generate &rarr; プレビュー &rarr; ダウンロード</li>
+    </ol>
+  </div>
+  <h3>サードパーティAPI</h3>
+  <table>
+    <thead><tr><th>サービス</th><th>特徴</th></tr></thead>
+    <tbody>
+      <tr><td><strong>muapi.ai</strong></td><td>T2V/I2Vエンドポイント</td></tr>
+      <tr><td><strong>fal.ai</strong></td><td>APIホスティング</td></tr>
+      <tr><td><strong>PiAPI</strong></td><td>Dreamina経由API</td></tr>
+      <tr><td><strong>BytePlus ModelArk</strong></td><td>新規200万無料トークン</td></tr>
+    </tbody>
+  </table>
+  <h3>ComfyUIノード</h3>
+  <div class="link-group">
+    <a href="https://github.com/Anil-matcha/seedance2-comfyui" target="_blank" class="link-item"><span class="link-icon">GH</span> seedance2-comfyui (muapi.ai経由)</a>
+    <a href="https://github.com/Cameraptor/seedance_2_Comfy_UI_Node-sjinn_Api-" target="_blank" class="link-item"><span class="link-icon">GH</span> seedance_2_ComfyUI (Sjinn.ai)</a>
+    <a href="https://github.com/SamurAIGPT/muapi-comfyui" target="_blank" class="link-item"><span class="link-icon">GH</span> muapi-comfyui (100+モデル)</a>
+  </div>
+  <h3>CapCut統合（2026年3月〜）</h3>
+  <p>CapCut内「Media」&rarr;「AI Media」&rarr;「AI Video」。初期展開: BR, ID, MY, MX, PH, TH, VN</p>
+</section>
+
+<section id="pricing">
+  <h2><span class="icon" style="background:rgba(241,196,15,.2);color:#f7dc6f;">$</span> 料金体系</h2>
+  <div class="card-grid">
+    <div class="card-sm" style="border-color:rgba(46,204,113,.3);"><h4><span class="tag tag-green">FREE</span> 無料</h4><p>Dreamina: 毎日60+クレジット<br>即梦: 毎日約260クレジット</p></div>
+    <div class="card-sm" style="border-color:rgba(230,126,34,.3);"><h4><span class="tag tag-orange">即梦有料</span> 69 RMB/月〜</h4><p>約1,350円/月〜<br>1元で7日間お試しあり</p></div>
+    <div class="card-sm" style="border-color:rgba(231,76,60,.3);"><h4><span class="tag tag-red">Dreamina有料</span> $18〜84/月</h4><p>クレジットベース<br>10秒720p ≒ $1.91〜4.60</p></div>
+  </div>
+</section>
+
+<section id="prompt">
+  <h2><span class="icon" style="background:rgba(231,76,60,.2);color:#ff6b6b;">P</span> プロンプトエンジニアリング</h2>
+  <h3>6ステップ・フォーミュラ</h3>
+  <div class="card" style="text-align:center;font-size:1rem;">
+    <span class="tag tag-red">Camera</span> + <span class="tag tag-orange">Subject</span> + <span class="tag tag-purple">Action</span> + <span class="tag tag-blue">Environment</span> + <span class="tag tag-yellow">Lighting</span> + <span class="tag tag-green">Style</span>
+  </div>
+  <h3>重要ルール</h3>
+  <table>
+    <thead><tr><th>ルール</th><th>詳細</th></tr></thead>
+    <tbody>
+      <tr><td>文字数</td><td><strong>30-200語</strong>が最適</td></tr>
+      <tr><td>1ショット1動詞</td><td>動作動詞は1つだけ</td></tr>
+      <tr><td>人物数</td><td>1-2人に制限</td></tr>
+      <tr><td>ネガティブプロンプト</td><td><strong>非対応</strong>。肯定的制約文のみ</td></tr>
+      <tr><td>最重要要素</td><td><strong>照明記述</strong>が品質に最も効果的</td></tr>
+      <tr><td style="color:var(--c-negative);font-weight:700;">禁句</td><td><strong>"Fast"</strong> = 最も品質を劣化させるキーワード</td></tr>
+    </tbody>
+  </table>
+  <h3>カメラ記述</h3>
+  <div class="card-grid">
+    <div class="card-sm" style="border-color:rgba(231,76,60,.3);"><h4>悪い例</h4><pre style="margin:0;"><code>"Dolly zoom, 35mm lens"</code></pre></div>
+    <div class="card-sm" style="border-color:rgba(46,204,113,.3);"><h4>良い例</h4><pre style="margin:0;font-size:.78rem;"><code>"The camera slowly drifts forward,
+closing the distance between the
+viewer and the subject"</code></pre></div>
+  </div>
+  <h3>プロンプト実例</h3>
+  <pre><code>The camera follows the man from behind as he walks down a rain-soaked
+Tokyo alley at night, neon signs reflecting off the wet pavement, shot
+in a steady tracking movement, warm amber and cool cyan lighting contrast</code></pre>
+</section>
+
+<section id="multishot">
+  <h2><span class="icon" style="background:rgba(230,126,34,.2);color:#f0a858;">M</span> マルチショット・ストーリーテリング</h2>
+  <p><strong>2-3ショットがスイートスポット</strong>。各ビートは2-3文。ショットリスト形式で記述。</p>
+  <pre><code>[00:00-00:03] Wide shot: A dimly lit jazz club, smoke curling through
+amber spotlights, @Character1 sits alone at the bar
+
+[00:03-00:06] Medium shot: The bartender slides a glass across the
+counter, camera slowly pushes in on @Character1's face
+
+[00:06-00:10] Close-up: @Character1 lifts the glass, eyes reflecting
+the stage lights, jazz piano from @Audio1 syncs with
+the gentle head movement</code></pre>
+  <h3>リファレンスタグの活用</h3>
+  <table>
+    <thead><tr><th>タグ</th><th>用途</th></tr></thead>
+    <tbody>
+      <tr><td><code>@Character1</code></td><td>顔のロック（同一人物維持）</td></tr>
+      <tr><td><code>@Video1</code></td><td>モーショントランスファー（動きの参照）</td></tr>
+      <tr><td><code>@Audio1</code></td><td>ビートシンク（音楽との同期）</td></tr>
+      <tr><td><code>@Image1</code></td><td>シーン/スタイル参照</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="character">
+  <h2><span class="icon" style="background:rgba(155,89,182,.2);color:#c39bd3;">C</span> キャラクター一貫性</h2>
+  <table>
+    <thead><tr><th>項目</th><th>推奨</th></tr></thead>
+    <tbody>
+      <tr><td>枚数</td><td><strong>最大3枚</strong>（多すぎると逆効果）</td></tr>
+      <tr><td>アングル</td><td>正面1枚 + 3/4角度1枚 + 横顔1枚</td></tr>
+      <tr><td>条件</td><td>同一セッション・同一照明</td></tr>
+      <tr><td>品質</td><td>高解像度、明瞭な照明</td></tr>
+    </tbody>
+  </table>
+  <div class="card">
+    <p><strong>6枚&rarr;2枚に絞ることでドリフト約60%減少</strong></p>
+    <p>キャラクター説明を<strong>一字一句同じ</strong>に使い回す &rarr; <strong>95%以上</strong>の顔一貫性を維持</p>
+    <pre style="margin:.5rem 0 0;"><code>全ショット共通: "a 25-year-old woman with shoulder-length
+black hair and a red leather jacket"</code></pre>
+  </div>
+  <h3>リファレンス役割の戦略的割り当て</h3>
+  <div class="card-grid">
+    <div class="card-sm"><h4>Hero Reference</h4><p>アイデンティティのアンカー（顔の基準）</p></div>
+    <div class="card-sm"><h4>Style Reference</h4><p>衣装と照明ムード</p></div>
+    <div class="card-sm"><h4>Motion Reference</h4><p>特定のジェスチャーや表情</p></div>
+  </div>
+</section>
+
+<section id="audio">
+  <h2><span class="icon" style="background:rgba(52,152,219,.2);color:#85c1e9;">&#9835;</span> オーディオ同期</h2>
+  <h3>リップシンク</h3>
+  <pre><code>@Image1 speaks the words in @Audio1 with natural lip sync,
+medium close-up shot, warm indoor lighting</code></pre>
+  <ul>
+    <li>8言語以上の音素レベルリップシンクに対応</li>
+    <li>会話ペースの音声が最適</li>
+    <li>長フレーズ間に<strong>マイクロポーズ</strong>を入れるとアラインメント向上</li>
+  </ul>
+  <h3>音楽シンク</h3>
+  <p>音楽ファイルをアップロード &rarr; カットや動きがリズム/ビートに合わせて自動調整。シーンカットが音楽ビートと整合。</p>
+</section>
+
+<section id="comparison">
+  <h2><span class="icon" style="background:rgba(231,76,60,.2);color:#ff6b6b;">&#9878;</span> 競合モデルとの比較</h2>
+  <h3>Artificial Analysis リーダーボード</h3>
+  <div class="card-grid">
+    <div class="card-sm"><h4>Text-to-Video Arena</h4>
+      <table style="margin:0;"><tbody>
+        <tr><td class="cmp-best">1. Seedance 2.0</td><td class="cmp-best">Elo 1273</td></tr>
+        <tr><td>2. SkyReels V4</td><td>1245</td></tr>
+        <tr><td>3. PixVerse V6</td><td>1242</td></tr>
+        <tr><td>4. Kling 3.0</td><td>1241</td></tr>
+      </tbody></table>
+    </div>
+    <div class="card-sm"><h4>Image-to-Video Arena</h4>
+      <table style="margin:0;"><tbody>
+        <tr><td class="cmp-best">1. Seedance 2.0</td><td class="cmp-best">Elo 1356</td></tr>
+        <tr><td>2. PixVerse V6</td><td>1344</td></tr>
+        <tr><td>3. grok-imagine-video</td><td>1334</td></tr>
+        <tr><td>4. Kling 3.0 Omni</td><td>1298</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+  <h3>用途別比較</h3>
+  <div style="overflow-x:auto;">
+  <table>
+    <thead><tr><th>モデル</th><th>強み</th><th>弱み</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Seedance 2.0</strong></td><td class="cmp-best">構造制御、ネイティブ音声、マルチモーダル参照</td><td>720p制限、海外API停止</td></tr>
+      <tr><td><strong>Sora 2</strong></td><td class="cmp-good">物理リアリズム、長尺物語整合性</td><td>ChatGPT依存</td></tr>
+      <tr><td><strong>Kling 3.0</strong></td><td class="cmp-good">人体モーション、4K60fps、最速生成</td><td>マルチモーダル柔軟性低</td></tr>
+      <tr><td><strong>Runway Gen-4.5</strong></td><td class="cmp-good">シネマティック色彩、Motion Brush</td><td>構造制御で劣る</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="community">
+  <h2><span class="icon" style="background:rgba(230,126,34,.2);color:#f0a858;">X</span> SNS・コミュニティの反応</h2>
+  <h3>X (Twitter) バイラル</h3>
+  <div class="quote-card"><p>"Seedance 2.0 broke the Internet in China overnight. This is 100% AI. 10 wild examples. We are so cooked..."</p><div class="source">@minchoi (Min Choi)</div></div>
+  <div class="quote-card"><p>"China's ByteDance just dropped the most advanced video generation model in the world. Drastic step up from Veo 3.1 / Sora 2 in quality"</p><div class="source">@deedydas (Deedy)</div></div>
+  <div class="quote-card"><p>"AI made this in 20 seconds. Basically a film studio in your pocket"</p><div class="source">@AngryTomtweets (Angry Tom)</div></div>
+
+  <h3>著名人の反応</h3>
+  <div class="quote-card"><p>"It's happening fast"</p><div class="source">Elon Musk</div></div>
+  <div class="quote-card"><p>"I hate to say it. It's likely over for us"</p><div class="source">Rhett Reese（Deadpool &amp; Wolverine 脚本家）</div></div>
+  <div class="quote-card"><p>「地表最強のビデオモデル」「AGCの幼少期は終わった」</p><div class="source">馮驥（Game Science CEO / 黒神話悟空）</div></div>
+  <p><strong>賈樟柯</strong>（中国著名映画監督）はSeedance 2.0で短編映画「賈樟柯のダンス」を<strong>3日で制作</strong>。<a href="https://variety.com/2026/digital/news/jia-zhangke-ai-video-1236665296/" target="_blank">Variety報道</a></p>
+
+  <h3>バイラル映像</h3>
+  <table>
+    <thead><tr><th>映像</th><th>詳細</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Tom Cruise vs Brad Pitt</strong></td><td>最も拡散された格闘シーンディープフェイク</td></tr>
+      <tr><td>Avengers: Endgame リミックス</td><td>エンドゲームの再構成映像</td></tr>
+      <tr><td>Optimus Prime vs Godzilla</td><td>対決シーン</td></tr>
+      <tr><td>Ye &amp; Kim Kardashian 宮廷ドラマ</td><td>中国語で話し歌う2分間映像</td></tr>
+      <tr><td>Game of Thrones 別エンディング</td><td>代替エンディング</td></tr>
+      <tr><td>AI短編ドラマ「霍去病」</td><td><strong>5億再生</strong>、制作費470ドル</td></tr>
+    </tbody>
+  </table>
+
+  <h3>中国語圏コミュニティ</h3>
+  <h4>Bilibili</h4>
+  <ul>
+    <li><a href="https://www.bilibili.com/video/BV1gEfcBKEYR/" target="_blank">全30集保姆級教程</a> &mdash; マルチ主体制御、微表情制御</li>
+    <li><a href="https://www.bilibili.com/video/BV1gCcqzkEe7/" target="_blank">30個用法案例+完整提示詞</a> &mdash; 30ケーステスト</li>
+    <li><a href="https://www.bilibili.com/video/BV1C7QoBZEEk/" target="_blank">360度全景図控制法</a> &mdash; シーン一貫性の独自手法+ソースコード</li>
+    <li><a href="https://www.bilibili.com/video/BV1Vs9MB2ETh/" target="_blank">10集で9.9万元(200万円)収益化</a> &mdash; テンプレート+ツール共有</li>
+  </ul>
+  <p><strong>CCTV春晩</strong>: 六匹の馬のAI映像を生成、<strong>4億人以上</strong>同時視聴。</p>
+  <p><strong>産業インパクト</strong>: 短編ドラマ制作コストが1話5万元→約1,000元、<strong>98%以上削減</strong>。</p>
+</section>
+
+<section id="hollywood">
+  <h2><span class="icon" style="background:rgba(231,76,60,.2);color:#ff6b6b;">!</span> ハリウッド著作権問題</h2>
+  <table>
+    <thead><tr><th>組織</th><th>アクション</th></tr></thead>
+    <tbody>
+      <tr><td><strong>MPA</strong></td><td>CEO Rivkin「直ちに侵害停止せよ」公開声明</td></tr>
+      <tr><td><strong>Disney</strong></td><td>「DisneyのIPの仮想的強盗」排除措置命令</td></tr>
+      <tr><td><strong>Warner Bros</strong></td><td>Superman, Joker等がプリロードと指摘</td></tr>
+      <tr><td><strong>Paramount / Netflix / Sony</strong></td><td>排除措置命令で連合参加</td></tr>
+      <tr><td><strong>SAG-AFTRA</strong></td><td>「法律・倫理・同意の基本を無視」、会長Sean Astinの肖像無断使用</td></tr>
+    </tbody>
+  </table>
+  <h3>ByteDanceの対応タイムライン</h3>
+  <div class="timeline">
+    <div class="tl-item"><div class="tl-date">2026年2月9日</div><div class="tl-title">実在人物参照機能を緊急停止</div></div>
+    <div class="tl-item"><div class="tl-date">2026年2月16日</div><div class="tl-title">「知的財産権を尊重する」声明、セーフガード強化</div></div>
+    <div class="tl-item"><div class="tl-date">2026年3月15日</div><div class="tl-title">海外APIローンチを正式に一時停止</div></div>
+  </div>
+</section>
+
+<section id="limitations">
+  <h2><span class="icon" style="background:rgba(231,76,60,.2);color:#ff6b6b;">&#9888;</span> 制限事項</h2>
+  <div class="card-grid">
+    <div class="card-sm" style="border-color:rgba(231,76,60,.3);"><h4>海外API停止中</h4><p>著作権紛争によりグローバル展開一時停止</p></div>
+    <div class="card-sm" style="border-color:rgba(231,76,60,.3);"><h4>解像度制限</h4><p>720pでは群衆ディテールほぼゼロ</p></div>
+    <div class="card-sm" style="border-color:rgba(231,76,60,.3);"><h4>微表情の弱さ</h4><p>繊細な人間の感情表現は依然弱い</p></div>
+    <div class="card-sm" style="border-color:rgba(231,76,60,.3);"><h4>過剰検閲</h4><p>AI架空キャラまでブロックする過剰な顔検閲</p></div>
+    <div class="card-sm" style="border-color:rgba(231,76,60,.3);"><h4>海外待ち時間</h4><p>5秒480p動画に6-8時間待ちの報告</p></div>
+    <div class="card-sm" style="border-color:rgba(231,76,60,.3);"><h4>プライバシー</h4><p>顔画像だけで個人音声を無許可生成可能</p></div>
+  </div>
+</section>
+
+<section id="ecosystem">
+  <h2><span class="icon" style="background:rgba(155,89,182,.2);color:#c39bd3;">&#9851;</span> Seedエコシステム</h2>
+  <div class="tree">
+<span class="root">ByteDance Seedチーム</span>
+  <span class="branch">&#9500;&#9472;&#9472; Seedream</span>（画像生成 &mdash; 5.0 Lite）
+  <span class="branch">&#9500;&#9472;&#9472; Seedance</span>（動画生成 &mdash; 2.0）
+  <span class="leaf">&#9474;     &#9500;&#9472;&#9472; Dreamina / 即梦</span>（コンシューマー向け）
+  <span class="leaf">&#9474;     &#9500;&#9472;&#9472; CapCut / 剪映</span>（動画編集内統合）
+  <span class="leaf">&#9474;     &#9500;&#9472;&#9472; BytePlus / ModelArk</span>（API）
+  <span class="leaf">&#9474;     &#9492;&#9472;&#9472; サードパーティ</span>（muapi.ai, fal.ai等）
+  <span class="branch">&#9500;&#9472;&#9472; Seaweed</span>（動画生成基盤 &mdash; 70億パラメータ）
+  <span class="branch">&#9492;&#9472;&#9472; Doubao / 豆包</span>（AIアシスタント）
+  </div>
+  <h3>論文</h3>
+  <table>
+    <thead><tr><th>論文</th><th>arXiv</th></tr></thead>
+    <tbody>
+      <tr><td>Seedance 1.0 Technical Report</td><td><a href="https://arxiv.org/abs/2506.09113" target="_blank">2506.09113</a></td></tr>
+      <tr><td>Seedance 1.5 Pro Technical Report</td><td><a href="https://arxiv.org/abs/2512.13507" target="_blank">2512.13507</a></td></tr>
+      <tr><td>Seaweed-7B Technical Report</td><td><a href="https://arxiv.org/abs/2504.08685" target="_blank">2504.08685</a></td></tr>
+      <tr><td>Seedance 2.0（<span class="tag tag-red">未公開</span>）</td><td>&mdash;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="links">
+  <h2><span class="icon" style="background:rgba(52,152,219,.2);color:#85c1e9;">&#128279;</span> 参考リンク集</h2>
+  <h3>公式</h3>
+  <div class="link-group">
+    <a href="https://seed.bytedance.com/en/seedance2_0" target="_blank" class="link-item"><span class="link-icon">B</span> Seedance 2.0公式</a>
+    <a href="https://dreamina.capcut.com/tools/seedance-2-0" target="_blank" class="link-item"><span class="link-icon">D</span> Dreamina Seedance 2.0</a>
+    <a href="https://seaweed.video/" target="_blank" class="link-item"><span class="link-icon">S</span> Seaweed公式</a>
+  </div>
+  <h3>日本語チュートリアル</h3>
+  <div class="link-group">
+    <a href="https://dreamina.capcut.com/ja-jp/resource/how-to-use-seedance-2-0" target="_blank" class="link-item"><span class="link-icon">JP</span> Dreamina公式 (日本語)</a>
+    <a href="https://weel.co.jp/media/tech/seedance-2-0/" target="_blank" class="link-item"><span class="link-icon">JP</span> WEEL解説</a>
+    <a href="https://videoweb.ai/ja/blog/detail/Seedance-2-0-Video-Generation-Guide-Tutorial-Prompts-578fb91b8f46/" target="_blank" class="link-item"><span class="link-icon">JP</span> videoweb.ai ガイド</a>
+    <a href="https://uravation.com/media/seedance-20-video-ai-guide/" target="_blank" class="link-item"><span class="link-icon">JP</span> Uravation ガイド</a>
+    <a href="https://www.lumeflow.ai/jp/ai-tools/seedance-2-guide/" target="_blank" class="link-item"><span class="link-icon">JP</span> LumeFlow ガイド</a>
+    <a href="https://note.com/old_pgmrs_will/n/n442174cf60ed" target="_blank" class="link-item"><span class="link-icon">JP</span> note.com 究極ガイド</a>
+  </div>
+  <h3>英語チュートリアル</h3>
+  <div class="link-group">
+    <a href="https://curiousrefuge.com/blog/how-to-use-seedance-2-omni" target="_blank" class="link-item"><span class="link-icon">EN</span> Curious Refuge 使い方</a>
+    <a href="https://curiousrefuge.com/blog/seedance-2-review" target="_blank" class="link-item"><span class="link-icon">EN</span> Curious Refuge レビュー(8.26/10)</a>
+    <a href="https://wavespeed.ai/blog/posts/seedance-2-0-complete-guide-multimodal-video-creation/" target="_blank" class="link-item"><span class="link-icon">EN</span> WaveSpeed 完全ガイド</a>
+    <a href="https://wavespeed.ai/blog/posts/blog-character-consistency-seedance-2-0/" target="_blank" class="link-item"><span class="link-icon">EN</span> WaveSpeed キャラ一貫性</a>
+    <a href="https://www.seedance.tv/blog/seedance-2-0-prompt-guide" target="_blank" class="link-item"><span class="link-icon">EN</span> Seedance.tv プロンプト50+例</a>
+    <a href="https://www.seedance.tv/blog/seedance-2-0-capcut-integration-guide" target="_blank" class="link-item"><span class="link-icon">EN</span> CapCut統合ガイド</a>
+    <a href="https://www.gamsgo.com/blog/how-to-use-seedance" target="_blank" class="link-item"><span class="link-icon">EN</span> GamsGo チュートリアル</a>
+    <a href="https://help.apiyi.com/en/seedance-2-how-to-use-guide-en.html" target="_blank" class="link-item"><span class="link-icon">EN</span> Apiyi 5つの使い方</a>
+    <a href="https://help.apiyi.com/en/seedance-2-0-prompt-guide-video-generation-camera-style-tips-en.html" target="_blank" class="link-item"><span class="link-icon">EN</span> Apiyi プロンプトガイド</a>
+    <a href="https://www.cutout.pro/learn/blog-seedance-2-0-complete-workflow/" target="_blank" class="link-item"><span class="link-icon">EN</span> Cutout.pro ワークフロー</a>
+    <a href="https://www.freepik.com/blog/how-to-write-prompts-for-seedance-2-0/" target="_blank" class="link-item"><span class="link-icon">EN</span> Freepik プロンプト</a>
+    <a href="https://artlist.io/blog/how-to-use-seedream-4-5/" target="_blank" class="link-item"><span class="link-icon">EN</span> Artlist ガイド</a>
+  </div>
+  <h3>GitHub</h3>
+  <div class="link-group">
+    <a href="https://github.com/YouMind-OpenLab/awesome-seedance-2-prompts" target="_blank" class="link-item"><span class="link-icon">GH</span> awesome-seedance-2-prompts (500+)</a>
+    <a href="https://github.com/ZeroLu/awesome-seedance" target="_blank" class="link-item"><span class="link-icon">GH</span> awesome-seedance</a>
+    <a href="https://github.com/ZeroLu/seedance2.0-how-to" target="_blank" class="link-item"><span class="link-icon">GH</span> seedance2.0-how-to</a>
+    <a href="https://github.com/Anil-matcha/Seedance-2.0-API" target="_blank" class="link-item"><span class="link-icon">GH</span> Seedance-2.0-API (Python)</a>
+    <a href="https://github.com/Anil-matcha/seedance2-comfyui" target="_blank" class="link-item"><span class="link-icon">GH</span> seedance2-comfyui</a>
+  </div>
+  <h3>中国語リソース</h3>
+  <div class="link-group">
+    <a href="https://blog.csdn.net/seoread/article/details/157937583" target="_blank" class="link-item"><span class="link-icon">ZH</span> CSDN 使用手冊</a>
+    <a href="https://zhuanlan.zhihu.com/p/2004523300588643639" target="_blank" class="link-item"><span class="link-icon">ZH</span> 知乎 実操教程</a>
+    <a href="https://zhuanlan.zhihu.com/p/2004623893273519265" target="_blank" class="link-item"><span class="link-icon">ZH</span> 知乎 餵飯教程</a>
+    <a href="https://www.bilibili.com/video/BV1gEfcBKEYR/" target="_blank" class="link-item"><span class="link-icon">B</span> Bilibili 30集チュートリアル</a>
+    <a href="https://www.bilibili.com/video/BV1gCcqzkEe7/" target="_blank" class="link-item"><span class="link-icon">B</span> Bilibili 30ケーステスト</a>
+    <a href="https://www.bilibili.com/video/BV1C7QoBZEEk/" target="_blank" class="link-item"><span class="link-icon">B</span> Bilibili 360度パノラマ手法</a>
+  </div>
+  <h3>ニュース・報道</h3>
+  <div class="link-group">
+    <a href="https://techcrunch.com/2026/03/26/bytedances-new-ai-video-generation-model-dreamina-seedance-2-0-comes-to-capcut/" target="_blank" class="link-item"><span class="link-icon">N</span> TechCrunch CapCut統合</a>
+    <a href="https://techcrunch.com/2026/02/15/hollywood-isnt-happy-about-the-new-seedance-2-0-video-generator/" target="_blank" class="link-item"><span class="link-icon">N</span> TechCrunch Hollywood反応</a>
+    <a href="https://variety.com/2026/film/news/motion-picture-association-ai-seedance-bytedance-tom-cruise-1236661753/" target="_blank" class="link-item"><span class="link-icon">N</span> Variety MPA声明</a>
+    <a href="https://www.hollywoodreporter.com/business/business-news/seedance-2-0-sparks-hollywood-backlash-1236505120/" target="_blank" class="link-item"><span class="link-icon">N</span> Hollywood Reporter</a>
+    <a href="https://www.cnn.com/2026/02/20/china/china-ai-seedance-intl-hnk-dst" target="_blank" class="link-item"><span class="link-icon">N</span> CNN 第二のDeepSeek</a>
+    <a href="https://variety.com/2026/digital/news/jia-zhangke-ai-video-1236665296/" target="_blank" class="link-item"><span class="link-icon">N</span> Variety 賈樟柯短編</a>
+    <a href="https://www.sagaftra.org/sag-aftra-statement-seedance-20" target="_blank" class="link-item"><span class="link-icon">N</span> SAG-AFTRA声明</a>
+    <a href="https://en.wikipedia.org/wiki/Seedance_2.0" target="_blank" class="link-item"><span class="link-icon">W</span> Wikipedia</a>
+  </div>
+  <h3>コミュニティ</h3>
+  <div class="link-group">
+    <a href="https://discord.com/invite/zZFUeA8ZQF" target="_blank" class="link-item"><span class="link-icon">D</span> Seedance Discord</a>
+    <a href="https://news.ycombinator.com/item?id=46940720" target="_blank" class="link-item"><span class="link-icon">HN</span> Hacker News</a>
+    <a href="https://artificialanalysis.ai/video/leaderboard/text-to-video" target="_blank" class="link-item"><span class="link-icon">LB</span> Video Leaderboard</a>
+  </div>
+</section>
+
+<footer style="text-align:center;padding:3rem 0;color:var(--c-text-sub);font-size:.8rem;border-top:1px solid var(--c-border);">
+  SEEDANCE 2.0 Research Report &mdash; Compiled 2026-04-05<br>
+  Sources: arXiv, ByteDance Seed, Dreamina, X/Twitter, Bilibili, Zhihu, Reddit, Hacker News, YouTube, Variety, TechCrunch, Hollywood Reporter, CNN
+</footer>
+
+</main>
+</div>
+<button class="scroll-top" onclick="window.scrollTo({top:0})" aria-label="Top">&uarr;</button>
+<script>
+const btn=document.querySelector('.scroll-top');window.addEventListener('scroll',()=>{btn.classList.toggle('visible',window.scrollY>400)});
+const links=document.querySelectorAll('.sidebar a'),sections=document.querySelectorAll('section[id]');
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){links.forEach(l=>l.classList.remove('active'));const a=document.querySelector(`.sidebar a[href="#${x.target.id}"]`);if(a)a.classList.add('active')}})},{rootMargin:'-20% 0px -70% 0px'});
+sections.forEach(s=>obs.observe(s));
+</script>
+</body>
+</html>

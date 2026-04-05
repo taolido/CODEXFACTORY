@@ -1,608 +1,488 @@
-# SEEDREAM 2.0 総合リサーチレポート
+# SEEDREAM 2.0 / Seedance 2.0 総合リサーチレポート
 
-> リサーチ日: 2026-04-05
-> 情報源: arXiv論文、公式サイト、X(Twitter)、Bilibili、知乎、Reddit、YouTube、各種テックブログ
-
----
-
-## 目次
-
-1. [Seedreamとは何か](#1-seedreamとは何か)
-2. [技術アーキテクチャ（Seedream 2.0）](#2-技術アーキテクチャseedream-20)
-3. [シリーズ進化タイムライン（1.0→5.0）](#3-シリーズ進化タイムライン105.0)
-4. [アクセス方法・使い方](#4-アクセス方法使い方)
-5. [料金体系](#5-料金体系)
-6. [プロンプトエンジニアリング](#6-プロンプトエンジニアリング)
-7. [ComfyUI統合・ワークフロー](#7-comfyui統合ワークフロー)
-8. [SeedEdit（画像編集機能）](#8-seededit画像編集機能)
-9. [動画生成（Seedance 2.0）](#9-動画生成seedance-20)
-10. [競合モデルとの比較](#10-競合モデルとの比較)
-11. [SNS・コミュニティの反応](#11-snsコミュニティの反応)
-12. [商用利用・ライセンス](#12-商用利用ライセンス)
-13. [制限事項・注意点](#13-制限事項注意点)
-14. [プラットフォーム関係図](#14-プラットフォーム関係図)
-15. [参考リンク集](#15-参考リンク集)
+> 調査日: 2026-04-05
+> 調査範囲: 技術論文・公式リソース・SNSバイラル・How-toガイド・プロンプト技法・ベンチマーク・著作権問題・ツール統合
 
 ---
 
-## 1. Seedreamとは何か
+## 重要な前提: 2つの別モデルが混同されている
 
-Seedream 2.0は、**ByteDance（TikTok親会社）のSeedチーム**が開発した**ネイティブ中国語・英語バイリンガル画像生成基盤モデル**。2024年12月初旬にDoubao（豆包）アプリおよびJimeng（即梦）でリリースされ、**1億人以上のエンドユーザー**に利用されている。
+ByteDance Seedチームの「Seed」ブランドには **画像生成** と **動画生成** の2系統が存在し、SNSでは頻繁に混同されている。
 
-論文は2025年3月13日にarXivで公開: 「Seedream 2.0: A Native Chinese-English Bilingual Image Generation Foundation Model」
+| モデル | 種別 | リリース | プラットフォーム |
+|--------|------|----------|-----------------|
+| **Seedream 2.0** | 画像生成 (Text-to-Image) | 2024年12月（論文: 2025年3月） | Doubao, Dreamina |
+| **Seedance 2.0** | 動画生成 (Text-to-Video) | 2026年2月12日 | Dreamina, CapCut |
 
----
-
-## 2. 技術アーキテクチャ（Seedream 2.0）
-
-### コアアーキテクチャ
-
-| 要素 | 詳細 |
-|------|------|
-| ベース | Diffusion Transformer (DiT) + VAE |
-| パラメータ数 | 約39億（3.9B） |
-| 設計思想 | Stable Diffusion 3のMMDiT原則に準拠 |
-| Transformerブロック | 各ブロックに1つのSelf-Attention層、画像・テキストトークンを同時処理 |
-| MLP | モダリティ別（画像用・テキスト用を分離） |
-| 正規化 | Adaptive Layer Norm（AdaLN）で注意層とMLP層を変調 |
-| 位置エンコーディング | Scaled RoPE（未学習解像度への汎化対応） |
-
-### テキストエンコーダ（2系統）
-
-1. **自社開発バイリンガルLLM**: Decoder-onlyアーキテクチャ。CLIP/T5ではなく独自開発。中英両言語のセマンティクスを深く理解
-2. **Glyph-Aligned ByT5**: 文字レベルのテキストレンダリング用。複雑な漢字の正確なレンダリングを実現
-
-### 学習データ
-
-- **規模**: 約2.5億の画像テキストペア
-- **言語比率**: 中国語70%、英語30%
-- **前処理**: 重複排除、審美フィルタリング、不適切コンテンツ除去の多段階クリーニング
-- **知識融合**: 「四次元トポロジカルネットワーク」による品質と知識の動的バランス
-
-### ポストトレーニング最適化
-
-1. **Continue Training (CT) + SFT**: 美的品質向上
-2. **RLHF**: 3つのリワードモデル使用（画像テキスト整合性RM、美的RM、テキストレンダリングRM）
-3. **Prompt Engineering (PE)**: ファインチューニングLLMで美的品質と多様性を改善
-4. **Refinerモデル**: 解像度アップスケーリング + 構造エラー修正
-
-### ベンチマーク成績（Seedream 2.0）
-
-| ベンチマーク | 結果 |
-|-------------|------|
-| EvalMuse総合スコア | **0.8031**（最高位） |
-| 構造的側面 | 1位 |
-| 画像テキスト整合性 | 2位（Midjourney v6.1を上回る） |
-| 審美性 | 2位（Ideogram 2.0を上回る） |
-| テキストレンダリング | 中英両言語で最高精度 |
-| HPSv2スコア | 最高得点 |
+SNSで爆発的にバズしたのは主に **Seedance 2.0（動画生成）**。Seedream 2.0（画像生成）は研究論文としての注目が中心。本レポートでは両方を網羅する。
 
 ---
 
-## 3. シリーズ進化タイムライン（1.0→5.0）
+## 1. Seedream 2.0 — 技術概要
 
-| バージョン | 時期 | 主な特徴 |
+### 1.1 基本情報
+
+- **開発元**: ByteDance Seed チーム（28名の研究者、リード: Lixue Gong, Weilin Huang）
+- **正式名称**: Seedream 2.0: A Native Chinese-English Bilingual Image Generation Foundation Model
+- **論文公開日**: 2025年3月10日（arXiv）
+- **実サービス統合**: 2024年12月時点で Doubao（豆包）および Dreamina（即梦）に統合済み
+- **ユーザー規模**: 1億人以上のC向けユーザーにサービス提供
+
+### 1.2 アーキテクチャ
+
+**Unified Diffusion Transformer (DiT)** ベース。以下の主要コンポーネントで構成:
+
+#### (A) VAE（変分オートエンコーダ）
+- 独自開発VAEが画像を潜在空間にエンコード → H x W/4トークンに変換
+
+#### (B) Diffusion Transformer (DiT)
+- SD3のMMDiT設計に触発
+- 画像トークンとテキストトークンを連結し、**単一のself-attention層**で同時処理
+- モダリティごとに個別のMLPを使用
+- QK-Normによる学習安定性向上
+- Adaptive Layer Normで各attention/MLP層を変調
+- Fully Sharded Data Parallel (FSDP) による分散学習
+
+#### (C) テキストエンコーダ（独自LLM）
+- CLIP/T5の代わりに**独自開発のDecoder-Only LLM**を採用
+- 画像-テキストデータでファインチューニング
+- 中国語・英語の両プロンプトをネイティブに理解
+
+#### (D) 文字レベルレンダリング（Glyph-Aligned ByT5）
+- ByT5ベースの文字レベルエンコーダがグリフ（字形）エンベディングを生成
+- MLPプロジェクションでLLMの特徴空間と整合
+- LLMのセマンティック特徴 + ByT5のグリフ特徴を連結してDiTに入力
+- 複雑な中国語漢字のレンダリングに特に強い
+
+#### (E) Scaled RoPE（位置エンコーディング）
+- 画像解像度に基づくスケールファクター設定
+- 画像中心付近のパッチが異なる解像度間で類似の位置IDを共有
+- **未学習の解像度・アスペクト比にも汎化可能**
+
+#### (F) 解像度
+- ベースモデル: 512px → Refinerモデルで1024pxにアップスケール
+
+### 1.3 学習パイプライン
+
+#### 事前学習データ（4構成要素）
+1. **高品質データ**: 鮮明さ・美的魅力・ソース分布に基づいて評価
+2. **分布維持データ**: ソースによるダウンサンプリング + クラスタリングベースサンプリング
+3. **知識注入データ**: 独自分類体系 + マルチモーダル検索エンジン活用、中国文化固有データ含む
+4. **対象補完データ**: アクション指向データ + 反事実データ
+
+#### データクリーニング（3段階）
+- Stage 1: 一般品質評価（OCR検出含む）
+- Stage 2: 専門的美的スコア、特徴エンベディング抽出、重複排除、クラスタリング
+- Stage 3: 階層化キャプション（高品位データほど詳細な記述）
+
+#### キャプションシステム
+- **汎用キャプション**: 短縮（核心内容）と長文（詳細記述）
+- **専門キャプション**: 芸術的（美的要素）、テキスト（画像内テキスト）、シュール（幻想的要素）
+
+### 1.4 ポストトレーニング（4段階最適化）
+
+1. **継続学習 (CT)**: 手動選別された数百万枚の画像。VMixによる美的次元タグ（色彩、照明、テクスチャ、構図）統合
+
+2. **教師あり微調整 (SFT)**: スタイルラベル+精密な美的ラベル付きデータ。モデル生成画像をネガティブサンプルとして活用。データリサンプリングで美的品質と画像-テキスト整合性のバランス維持
+
+3. **RLHF（人間フィードバックによる強化学習）**:
+   - 100万件の多次元プロンプト
+   - 3つの報酬モデル: 画像-テキスト整合性 / 美的品質 / テキストレンダリング
+   - REFLパラダイムに類似した直接最適化
+   - 反復的改善: 拡散最適化 → 選好アノテーション → 報酬モデル更新の3段サイクル
+
+4. **プロンプトエンジニアリング (PE)**: ファインチューニング済みLLMがユーザープロンプトを自動最適化。**美的品質30%向上、画像-テキスト整合性5%改善**
+
+5. **TSCD蒸留**: 階層的リファインメント戦略でセグメント数を k=16 → k=1 へ段階的削減。推論効率の大幅改善
+
+---
+
+## 2. ベンチマーク・競合比較
+
+### 2.1 人間評価（Bench-240: 240のバイリンガルプロンプト）
+
+| 指標 | Seedream 2.0 の順位 | 比較対象 |
+|------|-------------------|---------|
+| ELO スコア（英語） | **最高** | Flux, SD3.5, GPT-4o, Midjourney v6.1, Ideogram 2.0 |
+| ELO スコア（中国語） | **最高** | Kolors 1.5, MiracleVision 5.0, Hunyuan |
+| 構造的正確性 | **1位** | 全比較モデル中 |
+| 画像-テキスト整合性 | **2位** | 全比較モデル中 |
+| 美的性能 | **2位** | 全比較モデル中 |
+
+### 2.2 自動評価メトリクス
+
+| メトリクス | Seedream 2.0 | FLUX 1.1 Pro | Midjourney v6.1 | GPT-4o | Ideogram 2.0 |
+|-----------|-------------|-------------|----------------|--------|-------------|
+| EvalMuse total | **0.682（最高）** | - | - | - | - |
+| VQAScore | 0.8031 | 0.7877 | 0.7569 | 0.7974 | 0.8226 |
+| HPSv2 | **0.2994（最高）** | 0.2946 | 0.2850 | - | 0.2932 |
+| MPS | 13.61 | - | - | - | - |
+
+### 2.3 テキストレンダリング性能
+
+**中国語テキスト（180プロンプトベンチマーク）:**
+- テキスト精度: **78%**
+- テキストヒット率: **82%**
+- 比較: MiracleVision 5.0は65%精度
+
+**英語テキスト:**
+- RecraftV3、Ideogram 2.0、Fluxと競争力のある精度とヒット率
+
+### 2.4 中国文化特性評価（350プロンプト）
+- 5カテゴリ: 伝統衣装、食文化、建築、工芸、祭り
+- **全次元で競合モデルを大幅に上回る**
+- モンゴル族と中国チベット族のローブの微妙な違いなど、文化的細部の区別に優れる
+
+### 2.5 競合との位置づけ総括
+
+| 能力 | Seedream 2.0 の強み |
+|------|-------------------|
+| バイリンガル対応 | 中英両語でネイティブ理解（他モデルは英語偏重） |
+| テキストレンダリング | 中国語テキスト描画で圧倒的優位 |
+| 文化理解 | 中国文化のニュアンス理解で独壇場 |
+| プロンプト追従 | EvalMuse最高スコア |
+| 画像品質 | HPSv2最高スコア |
+| コスト効率 | 後続バージョンでMidjourney比大幅に安価 |
+
+### 2.6 弱点・留意点
+- オープンソースではないため、LoRA・ファインチューニング不可
+- フォトリアリズムではFlux 2 ProやImagen 4が上位（2026年時点）
+- アーティスティックスタイルではMidjourneyがリーダー
+- 解像度はベース512→Refiner 1024で、後継（4.5で4K対応）と比較して低い
+- リリース後、ユーザートラフィックが67.4%減少（後継モデル移行のため）
+
+---
+
+## 3. アクセス方法・料金
+
+### 3.1 Seedream 2.0 はオープンソースか？
+
+**NO。** モデル重みは非公開。ダウンロードして手元で実行することは不可。論文のみ公開（CC BY 4.0）。
+
+### 3.2 直接アクセス手段
+
+| プラットフォーム | URL | 備考 |
+|---------------|-----|------|
+| Doubao（豆包） | https://www.doubao.com/chat/create-image | 1日約5回無料。中国国外はVPN必要 |
+| Dreamina（即梦・国際版） | https://dreamina.capcut.com | Google/TikTok/Facebook/CapCut/メールで登録 |
+| Jimeng（即梦・中国版） | https://jimeng.jianying.com/ai-tool/image/generate | Douyinアカウントでログイン |
+
+### 3.3 サードパーティAPIプロバイダ（後続バージョン）
+
+| プロバイダ | モデル | 料金 |
+|-----------|-------|------|
+| Atlas Cloud | Seedream 4.5 | $0.036/画像 |
+| WaveSpeedAI | Seedream 4.5/5.0 | API料金制 |
+| Replicate | Seedream 4 | bytedance/seedream-4 |
+| BytePlus（公式海外版） | Seedream 4.0-5.0 Lite | $0.03-0.045/画像 |
+| VisualGPT | Seedream 4.0/5.0 | 無料オプションあり |
+
+### 3.4 Seedreamファミリー現行料金
+
+| モデル | 料金/画像 | 無料枠 |
+|-------|----------|-------|
+| Seedream 4.0 | $0.03 | 200枚 |
+| Seedream 4.5 | $0.035-0.045 | 200枚 |
+| Seedream 5.0 Lite | $0.035 | 200枚 |
+
+---
+
+## 4. Seedreamモデルファミリーの系譜
+
+| バージョン | 時期 | 主な進化 |
 |-----------|------|---------|
-| **1.0** | 2023年初頭 | 中国語文字配置に特化 |
-| **2.0** | 2024年12月（論文2025年3月） | バイリンガル基盤モデル、MMDiTアーキテクチャ、1億ユーザー達成 |
-| **3.0** | 2025年4月 | 2K解像度対応、4〜8倍高速化、GPT-4o超え主張、混合解像度トレーニング |
-| **4.0** | 2025年9月 | 画像生成+編集の統合、2K画像1.4秒生成、4K対応、ELOランキング1位 |
-| **4.5** | 2025年12月 | 4K解像度、テキストレンダリング94%精度、14枚同時参照画像 |
-| **5.0** | 2026年2月 | **Web検索統合（業界初）**、論理的推論、ドメイン知識搭載 |
-| **5.0 Lite** | 2026年3月 | 軽量版、API価格$0.035/枚 |
+| 初期バージョン | ~2024 | 中国語テキスト配置と構造化レイアウト生成に特化 |
+| **Seedream 2.0** | 2024年12月 | バイリンガル基盤モデル、RLHF、Glyph-Aligned ByT5 |
+| Seedream 3.0 | 2025年4月 | グローバル競争力を持つ最初のバージョン。高速化、スタイル多様化 |
+| SeedEdit 3.0 | 2025年6月 | 画像編集特化モデル |
+| Seedream 4.0 | 2025年9月 | 画像生成+画像編集の統合アーキテクチャ、ID一貫性 |
+| Seedream 4.5 | 2025年後半 | 4K出力、テクスチャ・ライティング改善、マルチサブジェクト対応 |
+| Seedream 5.0 / 5.0 Lite | 2026年2月 | Web検索連携生成、深層思考能力、マルチターン編集 |
 
-### 姉妹モデル
-
-| モデル | 用途 | 最新バージョン |
-|--------|------|-------------|
-| **Seedream** | 画像生成・編集 | 5.0 Lite |
-| **Seedance** | 動画生成 | 2.0 |
-| **Seaweed** | 動画生成基盤（約70億パラメータ） | - |
-
----
-
-## 4. アクセス方法・使い方
-
-### 方法1: Dreamina（最も手軽・無料あり）
-
-1. https://dreamina.capcut.com にアクセス
-2. Googleアカウントで登録
-3. 「AI画像」をクリック
-4. モデルのドロップダウンからSeedreamバージョンを選択
-5. プロンプトを入力（日本語・英語・中国語対応）
-6. アスペクト比と出力解像度を設定
-7. 「Create」ボタンで生成
-8. 生成画像をダウンロード
-
-**毎日225クレジット無料**（1生成≒1クレジット）
-
-### 方法2: API（BytePlus ModelArk）
-
-1. https://console.byteplus.com でアカウント作成
-2. ModelArkセクションでAPIキーを発行
-3. モデルリストからSeedreamモデルを「Activate」
-4. APIエンドポイントでText-to-Image / Image-to-Image を実行
-5. **無料トライアル: 200枚**
-
-### 方法3: サードパーティAPI
-
-| プラットフォーム | 対応バージョン | URL |
-|---------------|-------------|-----|
-| Together AI | 4.0 | https://www.together.ai/models/bytedance-seedream-4-0 |
-| fal.ai | 4.0/4.5 | https://fal.ai/models/fal-ai/bytedance/seedream/ |
-| WaveSpeed AI | 各種 | https://wavespeed.ai/collections/seedream |
-| getimg.ai | 5.0 Lite | https://getimg.ai/models/bytedance-seedream |
-| Segmind | 一部 | https://blog.segmind.com/quick-start-guide-seedream/ |
-| Replicate | 4.0 | https://replicate.com/bytedance/seedream-4 |
-| Kie.ai | 各種 | https://kie.ai/seedream-api |
-| OpenRouter | 4.5 | https://openrouter.ai/bytedance-seed/seedream-4.5 |
-
-### 方法4: 即夢/Jimeng（中国版、フル機能）
-
-- URL: https://jimeng.jianying.com
-- 中国電話番号が必要
-- 月額69元〜
-- 国際版より機能が豊富
+### ByteDance/TikTokとの関連
+- **Seedチーム**: ByteDanceのAI研究チーム（2023年設立）
+- **Doubao（豆包）**: ByteDanceのAIアシスタントプラットフォーム
+- **Dreamina（即梦）**: クリエイティブAIプラットフォーム（海外版）
+- **CapCut**: TikTok系動画編集アプリ（Seedance 2.0統合済み）
+- **BytePlus**: ByteDanceのエンタープライズ向けクラウドサービス
 
 ---
 
-## 5. 料金体系
+## 5. Seedance 2.0 — 動画生成モデル
 
-### API料金（BytePlus ModelArk経由）
+### 5.1 基本スペック
 
-| モデル | 料金/枚 |
-|-------|---------|
-| Seedream 3.0 | $0.03 |
-| Seedream 4.0 | $0.03 |
-| Seedream 4.5 | $0.04-0.045 |
-| Seedream 5.0 Lite | $0.035 |
-
-### サブスクリプション（Dreamina経由）
-
-| プラン | 月額 | 特徴 |
-|-------|------|------|
-| 無料 | $0 | 毎日225クレジット |
-| Pro | 約$23.9-29.99 | 商用ライセンス付き |
-| Max/Team | 約$63.9-99.99 | チーム向け、完全商用権利 |
-
----
-
-## 6. プロンプトエンジニアリング
-
-### 基本構造
-
-Seedreamのプロンプト理解の優先順位:
-
-**Subject（主題） > Style（スタイル） > Composition（構図） > Lighting（照明）**
-
-推奨フォーマット:
-```
-[アクション] + [対象物] + [属性/詳細]
-```
-
-例:
-```
-A girl in a lavish dress walking under a parasol along a tree-lined path, in the style of a Monet oil painting
-```
-
-### プロンプトのベストプラクティス
-
-| 項目 | 推奨 |
+| 項目 | 仕様 |
 |------|------|
-| 語数 | 30〜100語が最適 |
-| 形容詞 | 3〜5個の的確な修飾語（20個の弱い形容詞より効果的） |
-| テキスト挿入 | ダブルクォーテーションで囲む（例: "Hello World"） |
-| 複数キャラ | 参照画像にラベル付けしてプロンプトで参照 |
-| 照明 | golden hour, dramatic side lighting, soft diffused light 等 |
-| カメラ設定 | shot on 85mm lens, shallow depth of field, 4K detail 等 |
+| リリース日 | 2026年2月12日 |
+| 解像度 | ネイティブ2K（2048x1080） |
+| 動画長 | 5-12秒 |
+| FPS | 30FPS前後 |
+| 入力モダリティ | テキスト + 画像(最大9枚) + 動画(最大3本) + 音声(最大3トラック) |
+| 速度 | 1.5 Pro比30%高速化 |
+| プラットフォーム | Dreamina, CapCut |
 
-### ネガティブプロンプト（15〜25語推奨）
+### 5.2 @タグ参照システム（Seedance 2.0独自の武器）
 
-**一般品質:**
-```
-blurry, low resolution, noisy, jpeg artifacts, overexposed, underexposed, watermark, logo, signature
-```
+最大12ファイルをアップロードし、プロンプト内で参照可能:
+- `@Image1` ~ `@Image9`
+- `@Video1` ~ `@Video3`
+- `@Audio1` ~ `@Audio3`
 
-**人体:**
-```
-extra fingers, distorted hands, deformed eyes, asymmetrical face, bad anatomy, missing fingers, mutated limbs
-```
+これが他のAI動画ツールとの最大の差別化ポイント。
 
-**品質調整:**
-```
-pixelated, plastic skin, unrealistic shading, exaggerated proportions, oversaturated colors
-```
+### 5.3 Seedanceファミリー
 
-### 解像度・アスペクト比
-
-| 用途 | 推奨比率 |
-|------|---------|
-| ポートレート | 4:5 |
-| プロダクト | 3:2 |
-| グリッド | 1:1 |
-| 縦型動画 | 9:16 |
-| 最大解像度 | 4K (2048x2048) |
-
-### 視覚レイヤー分解テクニック（MaisonAI発）
-
-プロンプトを以下のレイヤーで構築:
-1. 被写体
-2. シーン
-3. 構図
-4. 照明
-5. レンズ/スタイル
-6. カラーパレット
-7. 後処理
-
-### 一貫性キャラクター生成テクニック（Sider.ai発）
-
-- クリーンで正面向きの参照画像（1024x1024、影なし）を使用
-- 外見/顔ロックを中〜高（70-85%）に設定
-- 顔のジオメトリを尊重するよう指示
+| バージョン | 主な特徴 |
+|-----------|---------|
+| Seedance 1.0 | text-to-video、image-to-video、マルチショット、1080p |
+| Seedance 1.5 Pro | ネイティブ音声・映像同時生成、多言語リップシンク |
+| **Seedance 2.0** | 4モーダル入力、ネイティブ2K、大幅高速化 |
 
 ---
 
-## 7. ComfyUI統合・ワークフロー
+## 6. SNSバイラル・著名投稿
 
-### セットアップ手順
+### 6.1 世界的に最もバズった投稿
 
-1. BytePlusコンソール（console.byteplus.com）でアカウント作成
-2. ModelArkセクションでAPIキーを発行
-3. 環境変数に設定: `SEEDREAM_API_KEY`, `SEEDREAM_ENDPOINT`
-4. ComfyUIカスタムノードをクローン:
-   - **公式**: https://github.com/kookliu/ComfyUI-Custom-Nodes
-   - **即梦API版**: https://github.com/fkxianzhou/ComfyUI-Jimeng-API
-5. custom_nodesディレクトリに配置、依存関係インストール
-6. `.env.example`を`.env`にコピーしてAPIキーを記入
+#### トム・クルーズ vs ブラッド・ピット格闘動画
+- **作者**: Ruairi Robinson（アイルランドの映画監督）
+- **内容**: たった2行のプロンプトで生成した屋上格闘シーン
+- **反響**: X上で **160万回以上の再生**
+- 全米主要メディア（Variety, Hollywood Reporter, Deadline）が一斉報道
 
-### 利用可能なワークフロー
+#### 主要なバイラル投稿者
 
-- テキスト→画像生成
-- 画像編集
-- 最大5枚のリファレンス画像を使ったマルチリファレンス生成
-- バッチ自動化（CSV/JSONでプロンプト変数をスワップ → RESTエンドポイント経由）
+| 投稿者 | 内容 | リンク |
+|--------|------|--------|
+| @HashemGhaili (Hashem Al-Ghaili) | 「Chaos」— 30分でText-to-Videoだけで制作。「VFXのゲームチェンジャー」 | https://x.com/HashemGhaili/status/2022364200295645336 |
+| @minchoi (Min Choi) | 1分のシネマティック動画を5分で生成（15秒x4ショット） | https://x.com/minchoi/status/2020989515939148146 |
+| @dreamina_ai (Dreamina公式) | Seedance 2.0 + Seedream 5.0 Lite正式公開告知 | https://x.com/dreamina_ai/status/2036292154671374493 |
+| @saasjunctionhq | 「2026 is the year of Hollywood level AI Movies」 | Threads |
 
-### 送信パラメータ
+### 6.2 バイラルになった動画例
 
-`prompt`, `negative_prompt`, `width`, `height`, `steps`, `cfg_scale`, `seed`
+| 内容 | 作者 | 反響 |
+|------|------|------|
+| トム・クルーズ vs ブラッド・ピット格闘 | Ruairi Robinson | 160万再生、全米メディア報道 |
+| Game of Thronesの別エンディング | 不明 | MPAが名指しで批判 |
+| ロッキー・バルボア & オプティマスプライム (ファストフード店) | 不明 | MPA報告で言及 |
+| Friends (キャラをカワウソに変換) | 不明 | SNSでバイラル |
+| ウィル・スミス vs 赤目スパゲッティモンスター | 不明 | SNSでバイラル |
+| 高市首相 vs ウルトラマン | 不明 | 日本政府が問題視 |
+| 孫悟空 vs ドラえもん | 不明 | 日本の著作権調査の契機 |
 
-### リソース
+### 6.3 日本語圏でのバズ
 
-- ComfyUI公式ブログ: https://blog.comfy.org/p/seedream-40-now-available-in-comfyui
-- Seedream 5.0 Lite: https://blog.comfy.org/p/seedream-50-lite-now-available-in
-- Civitaiワークフロー: https://civitai.com/models/1968364
-- 無料テンプレート: https://www.comfy.org/workflows/model/seedream-4-0/
-- note.com解説: https://note.com/seal309midorin/n/n4cd3147d4c6d
+- X/TikTokで日本のIPキャラ（ウルトラマン、名探偵コナン、ドラゴンボールの孫悟空、ドラえもん、フリーレン等）の無断生成動画が大量出現
+- 「高市首相 vs ウルトラマン」の動画が特に物議
+- ITmedia、映画.com、テクノエッジなど主要メディアが一斉報道
 
----
+### 6.4 コミュニティの反応
 
-## 8. SeedEdit（画像編集機能）
+#### 肯定的
+- 「AIだと言われなければ、どの俳優が演じたか考え込むレベル」
+- 「過去はハリウッド映画に数百万ドル必要だったが、今は1人と電気代だけで可能」
+- Hashem Al-Ghaili: 「VFXの真のゲームチェンジャー」
+- Elon Muskも注目（中国でDeepSeekに匹敵すると比較）
 
-Seedream 2.0は、指示ベースの画像編集モデル「SeedEdit」に容易に適応可能。
-
-### 特徴
-
-- 指示追従と画像一貫性のバランスが取れた強力な編集能力
-- 合成画像と実写画像の両方で優れた編集品質
-- 顔の類似性保持の改善（SeedEdit V1.0の課題を、拡散損失と顔損失の組み合わせで解決）
-- 既存のSoTAの学術・製品ベンチマークを上回る性能
-
-### 編集プロンプトの書き方
-
-- **アクション指定**: "remove", "replace", "add", "change", "transform"
-- **対象指定**: "background", "object", "text", "lighting"
-- **属性付与**: 色、スタイル、条件（例: "without distortions"）
-- **位置指定**: 「左のキャラクター」「ボウルの中の赤いリンゴ」など具体的に記述
-- 1つのプロンプトに多くの変更を詰め込まず、ステップに分割するのが効果的
+#### 否定的・批判
+- **Rhett Reese**（Deadpool脚本家）: 「残念ながら我々にとっては終わりだ」
+- **SAG-AFTRA**（俳優組合）: 「著作権者の声と肖像の無断使用は容認できない」
+- **MPA**（米映画協会）: 「公開1日で大規模な著作権侵害が発生した」
+- 2026年3月下旬には「初期のhypeに見合わない」という冷静な評価も。テキスト描画の崩壊、背景の低品質、物理法則の不正確さ等の問題が報告
 
 ---
 
-## 9. 動画生成（Seedance 2.0）
+## 7. 著作権問題の時系列
 
-### 特徴
-
-- **4つの入力モダリティ同時受付**: テキスト、画像（最大9枚）、動画クリップ（最大3本）、オーディオ（最大3トラック）
-- **ネイティブ2K解像度**出力
-- **オーディオ同期生成**: 音声を後付けではなく同時生成
-- **マルチショット生成**: ストーリーボードからシネマティックプレビュー
-- **キャラクター一貫性**: @リファレンスシステムで複数角度の参照画像をバインド
-- **最大12の同時リファレンス入力**
-
-### 映像制作での活用
-
-- ストーリーボードからのプリビジュアライゼーション
-- カメラパスの計画・確認
-- マルチシーンシーケンスの精査
-- ゲーム開発・アニメーション制作のビジュアル化
-
-### アクセス方法
-
-- Dreamina: https://dreamina.capcut.com/tools/seedance-2-0
-- CapCut: 動画編集アプリ内から利用
-- API: Jimeng / Volcengine APIで提供
-
-### 関連モデル: Seaweed
-
-- 約70億パラメータのDiffusion Transformer動画生成基盤モデル
-- 1000台のH100 GPU相当で学習
-- 1280x720（24fps）リアルタイム動画生成
-- 2560x1440（2K QHD）へのアップサンプル可能
-- 公式: https://seaweed.video/
+| 日付 | 出来事 |
+|------|--------|
+| 2026/2/12 | Seedance 2.0リリース |
+| 2026/2/13-14 | トム・クルーズ vs ブラッド・ピット動画がバイラル化 |
+| 2026/2/14 | MPA（米映画協会）が「大規模著作権侵害」と非難 |
+| 2026/2/14-15 | SAG-AFTRA（俳優組合）が「露骨な侵害」と声明 |
+| 2026/2/15 | ディズニーがByteDanceに是正要求書送付 |
+| 2026/2/16 | 日本のアニメIP無断利用 → 業界団体がTikTokに問い合わせ |
+| 2026/2/16 | 日本政府（小野田紀美AI担当大臣）が「看過できない」と声明 |
+| 2026/2月中旬 | ByteDanceが実在人物の顔写真入力機能を制限 |
+| 2026/3/15 | グローバル展開一時停止 |
+| 2026/3/26 | CapCutにSeedance 2.0統合（TechCrunch報道） |
 
 ---
 
-## 10. 競合モデルとの比較
+## 8. プロンプトエンジニアリング（実践ガイド）
 
-### 総合比較表
+### 8.1 Seedance 2.0 公式プロンプト6ステップフォーミュラ
 
-| 観点 | Seedream 2.0+ | FLUX 2 Pro | Midjourney | DALL-E 3/4o | Stable Diffusion |
-|------|-------------|------------|------------|-------------|-----------------|
-| フォトリアリズム | 中〜高 | 最高 | 高 | 高 | 中 |
-| アーティスティック | 中〜高 | 高 | 最高 | 中〜高 | 中 |
-| テキストレンダリング | **最高（中英）** | 高 | 中 | 中〜高 | 低 |
-| バイリンガル対応 | **最高** | 英語中心 | 英語中心 | 多言語 | 英語中心 |
-| 生成速度 | 高速（4.0以降） | 高速 | 中 | 高速 | 構成依存 |
-| コスト | 低〜中 | 中 | 高 | 中 | 低（OSS） |
-| オープンソース | 非公開 | 一部公開 | 非公開 | 非公開 | 完全公開 |
-| 画像編集統合 | 内蔵 | 別途必要 | 限定的 | 限定的 | 別途必要 |
+```
+[被写体] + [アクション] + [環境] + [カメラ] + [スタイル] + [制約]
+```
 
-### Seedream 2.0固有の優位性
+**具体例:**
+```
+A young woman in a white dress, slowly turns around with breeze blowing the skirt,
+in a seaside at dusk with golden glow, camera slow push-in, cinematic film tone 35mm,
+avoid jitter and bent limbs
+```
 
-1. **バイリンガルテキストレンダリング**: 中英両言語の文字を画像内に正確に描画（2.0時点で業界トップ）
-2. **文化的ニュアンス理解**: 中国語コンテンツの文化的文脈（書道、祭り、建築等）
-3. **独自LLMテキストエンコーダ**: CLIP/T5に依存しない深いセマンティクス理解
-4. **コスト効率**: 大量生成ワークフローでMidjourney/FLUXより優位
+**最適な文字数:** 60-100語
 
-### 用途別推奨モデル
+### 8.2 8種類のカメラムーブメント
 
-| ユースケース | 推奨モデル | 理由 |
-|------------|-----------|------|
-| Eコマースヒーロー画像 | Flux 2 Pro | 鮮明なテクスチャ、正確なマテリアル |
-| テキスト入り製品画像 | Ideogram V3 | テキスト配置の精度 |
-| 大量ライフスタイル画像 | **Seedream** | コスパが最も良い |
-| 芸術的・創造的作品 | Midjourney | シネマティックな美学 |
-| 中国語テキスト入り画像 | **Seedream** | バイリンガルテキストレンダリング |
+1. Push-in / Dolly in（寄り）
+2. Pull-out / Dolly out（引き）
+3. Pan / Lateral motion（パン）
+4. Tracking shot（追従）
+5. Orbit / Arc（周回）
+6. Aerial / Drone shot（空撮）
+7. Handheld（手持ち風）
+8. Fixed / Locked-off（固定）
+
+**鉄則: カメラ指示は1シーンにつき1つだけ**
+
+### 8.3 絶対やってはいけないこと
+
+- 「**fast**」は品質劣化の最大原因。高速カメラ移動+高速カット+複雑なシーンの組み合わせ → ジッター・アーティファクト確実発生
+- カメラの動きと被写体の動きを混同しない
+- 「amazing」「beautiful」等の曖昧な形容詞は効果なし
+- fps、f値等の技術パラメータ指定は無意味（リズムの描写で代替）
+- 複数のカメラ指示を同時に入れない
+- ネガティブプロンプトは非サポート → ポジティブな制約文で記述
+
+### 8.4 最も効果的なテクニック
+
+- **ライティング描写が最高のレバレッジ**: 形容詞10個追加 < ライティング1つ追加
+- **実在のリファレンス**: 「Apple keynote style」「Wes Anderson symmetry」のように実在の参照 → 一貫性が劇的向上
+- **タイムスタンプ制御**: 複数ビートのシーンでタイムスタンプ指定 → ペーシングを精密制御
+- **品質サフィックス**: "4K, Ultra HD, Rich details, Sharp clarity, Cinematic texture"等
+
+### 8.5 Seedream（画像生成）のプロンプトTips
+
+- 推奨フォーマット: 被写体 + シーン/雰囲気 + アクション + カメラ + スタイル/ライティング
+- 中国語・英語どちらもネイティブ処理（バイリンガル設計）
+- 中国語テキストレンダリング: 書道・方言・技術用語を理解する専用データセットで訓練済み
+- 1つのプロンプトに1つの主動作（複数の動作動詞は混乱の原因）
 
 ---
 
-## 11. SNS・コミュニティの反応
+## 9. ツール統合・ワークフロー
 
-### X（Twitter）の主要インフルエンサー
+### 9.1 ComfyUI統合
 
-| アカウント | 反応 |
+| リポジトリ | 内容 |
 |-----------|------|
-| **@TheoMediaAI** (Theoretically Media) | 「Here's the Seedream 2.0 Rundown! Amazing model! ByteDance really cooked here!」と絶賛。多数の実例を共有 |
-| **@gavinpurcell** (Gavin Purcell) | 「seedream 2.0 is the first AI video model in a long while that I'm going to pay for through the API」API課金する意欲を表明 |
-| **@Xianbao_QIAN** (Tiezhen WANG) | 論文公開を告知、技術コミュニティに拡散 |
-| **@koltregaskes** | Seedream 2.0画像生成モデルの情報共有 |
-| **@dreamina_ai** (公式) | Seedance 2.0 + Seedream 5.0 Liteの利用開始を公式発表 |
-| **@karim_yourself** | BytePlusのPlaygroundでの具体的な使い方を解説 |
+| [ComfyUI-Seedream-API](https://github.com/JiangAogo/ComfyUI-Seedream-API) | Volcano Engine API経由。5.0 Lite含む |
+| [ComfyUI-Seedream4_Replicate](https://github.com/Saganaki22/ComfyUI-Seedream4_Replicate) | Replicate API経由のSeedream 4 |
+| [ComfyUI-Seed-API](https://github.com/FloyoAI/ComfyUI-Seed-API) | BytePlus基盤モデル統合 |
+| [ComfyUI公式パートナーノード](https://blog.comfy.org/p/seedream-40-now-available-in-comfyui) | Seedream 4.0のネイティブ統合 |
 
-### 肯定的な評価
+### 9.2 API
 
-- 「画像のリアリズムが驚異的で、本物との区別がほぼ不可能」
-- 「スタイル転送、ブランドロゴ、クリエイティブポスターの処理が優秀」
-- 「検閲が少なく、創造的自由度が高い」
-- TechRadar: 「これまで見た中で最高のAI画像ジェネレーター」
+| プロバイダ | エンドポイント | 備考 |
+|-----------|-------------|------|
+| BytePlus（海外向け） | `console.byteplus.com` | `/v1/images/generations` |
+| Volcengine（国内企業向け） | - | エンタープライズSLA、中国語サポート |
+| Replicate | `replicate.com/bytedance/seedream-4` | 従量課金 |
+| OpenRouter | `openrouter.ai/bytedance-seed/seedream-4.5` | 統合API |
 
-### 批判的な評価
+### 9.3 SeedEdit（画像編集）
 
-- 「手、足、影、布地の細部ではNano Bananaの方がまだ強い」
-- 「高スコアは拒否回数の少なさが一因で、純粋な画像品質だけではない」
-- 「オープンソースでない点が残念」
-- 「バズがマーケティング主導だ」という指摘も一部あり
-- 特殊なリクエスト（例: 溢れないワイングラス）には依然として苦戦
-
-### 中国語圏コミュニティ
-
-**Bilibili:**
-- 「Nano Bananaを背刺する」Seedream 4.0深度評測動画（BV1LcHzzrEiB）
-- 「AI生成画像の新王」即梦Seedream 4.0全網最全玩法（BV19LWGzPE9k）
-- Seedream 5.0二次元風景の季節変更応用例（BV1M8c7zSERT）
-- 豆包APIバッチ画像生成ツール紹介（BV1obWwzyEeu）
-
-**知乎 (Zhihu):**
-- 「字節公開Seedream 2.0技術細節」技術解説記事
-- 「中国版Nano-Banana！即梦4.0完整使用指南」チュートリアル
-- 「AI視頻的大結局？Seedance 2.0掀桌子了!」動画生成AI評価
-
-**Douyin:**
-- 即梦AI公式アカウントがコンテンツ発信
-- コマースクリエイターが広告クリエイティブ制作に活用（**制作コスト最大40%削減**の報告）
-
-### コミュニティ
-
-- **Seedance 2.0 Discord**: discord.com/invite/zZFUeA8ZQF（小規模、約29メンバー）
-- **Product Hunt**: Seedream 2.0が登録済み
-- **Reddit**: AI画像生成サブレディットでSeedreamシリーズの話題は活発だが専用サブレディットはなし
-- **バイラル**: Seedance 2.0はElon Muskも関心を示したと報道。「ハリウッドを揺るがす」との評価も
+Seedream 2.0は**SeedEdit**という命令ベースの画像編集モデルに適応可能:
+- テキスト指示による画像の部分編集
+- スタイル変換
+- 顔IDの保持
+- 後続のSeedEdit 3.0では顔認識ロスの導入で顔の類似性保持が大幅改善
 
 ---
 
-## 12. 商用利用・ライセンス
+## 10. How-toガイド・チュートリアル一覧
 
-### Dreaminaプラットフォーム経由
+### 10.1 日本語
 
-| プラン | 商用利用 | 詳細 |
-|-------|---------|------|
-| 無料 | 限定的 | 基本的な生成・利用のみ |
-| 有料（Pro以上） | **完全な商用利用権** | 販売、クライアントワーク、商標登録可。帰属表示不要 |
+| 著者 | タイトル | URL |
+|------|---------|-----|
+| いにしえ@AIクリエイター | Seedance 2.0 究極ガイド | https://note.com/old_pgmrs_will/n/n442174cf60ed |
+| lisa | ByteDance Seedance 2.0 チュートリアル | https://note.com/easy_gnu5311/n/nd35e2cb18471 |
+| dallen | Seedance 2.0：初めてのAI動画を作る方法 | https://note.com/dallen/n/n76674814b2f6 |
+| AIで何でもできると勘違いして解決する部 | 実際に試した解説 | https://note.com/ai_jissennkai/n/nd9eb4bee1337 |
+| hirokaji | Seedream特化! 画像プロンプト攻略ガイド | https://note.com/tasty_dunlin998/n/n5472617b9feb |
+| リダ / Lida | Seedream4.0 プロンプトガイド + ComfyUI | https://note.com/seal309midorin/n/n4cd3147d4c6d |
+| WEEL | Seedance 2.0とは？技術解説 | https://weel.co.jp/media/tech/seedance-2-0/ |
+| 株式会社Uravation | 無料でAI動画を作る手順と料金 | https://uravation.com/media/seedance-20-video-ai-guide/ |
+| AQUA テックブログ | 「Sora超え」と話題の完全ガイド | https://www.aquallc.jp/seedance-2-complete-guide/ |
+| videoweb.ai | 動画生成ガイド完全解説版 | https://videoweb.ai/ja/blog/detail/Seedance-2-0-Video-Generation-Guide-Tutorial-Prompts-578fb91b8f46/ |
+| Dreamina公式（日本語） | Seedance 2.0の使い方 | https://dreamina.capcut.com/ja-jp/resource/how-to-use-seedance-2-0 |
+| 生成AIビジネス活用研究所 | Seedream Edit完全攻略ガイド | https://gai.workstyle-evolution.co.jp/2025/10/04/seedream-edit-complete-guide/ |
 
-### API経由
+### 10.2 英語
 
-- BytePlus / ModelArkの利用規約に準拠
-- エンタープライズプランで明確な商用権利
+| 著者/メディア | タイトル | URL |
+|-------------|---------|-----|
+| WaveSpeedAI Blog | Seedream 4.0-5.0 Complete Tutorial | https://wavespeed.ai/blog/posts/seedream-4-0-to-5-0-complete-tutorial-image-generation-editing/ |
+| Medium (Cliprise) | Complete Tutorial for ByteDance's Multimodal AI Video Model | https://medium.com/@cliprise/seedance-2-0-guide-the-complete-tutorial-for-bytedances-multimodal-ai-video-model-2026-fbad74a8c6f9 |
+| Freepik Blog | How to write prompts for Seedance 2.0 | https://www.freepik.com/blog/how-to-write-prompts-for-seedance-2-0/ |
+| No Film School | 映画制作者視点のレビュー | https://nofilmschool.com/seedance-2-0-ai-video-model |
+| Dreamina公式 | 18 Powerful Prompts | https://dreamina.capcut.com/resource/seedance-2-0-prompt |
+| BytePlus公式 | プロンプトガイド | https://docs.byteplus.com/en/docs/ModelArk/1829186 |
+| Atlabs | Seedream 4.0 Prompting Guide | https://www.atlabs.ai/blog/seedream4o-prompting-guide |
 
-### 注意事項
+### 10.3 GitHubプロンプト集
 
-- ユーザーがアップロードしたコンテンツについて、プラットフォームにワールドワイド・非独占的・ロイヤリティフリーのライセンスが付与される（利用規約）
-- 2026年3月にハリウッドスタジオとの著作権紛争により一部APIが停止された経緯あり
-
----
-
-## 13. 制限事項・注意点
-
-### Seedream 2.0固有
-
-1. **視覚的忠実度**: FLUX/Midjourneyに比べフォトリアリズムが劣る面あり（3.0以降で改善）
-2. **推論速度**: 競合に比べ不利（3.0で4〜8倍に高速化）
-3. **オープンソースではない**: モデルウェイトは非公開
-4. **2.0単体のAPI提供なし**: 技術は後続バージョンに統合済み
-
-### シリーズ全体
-
-- 小さい文字の繰り返し・劣化が発生する場合あり
-- 画像編集精度の限界
-- ぼかし・クロッピング問題（4.5で時折発生）
-- AI生成感が残る場合あり
-- 人体プロポーション問題
-- 地域制限（一部機能は中国国内版のみ）
-- コンテンツフィルタリング: BytePlus APIにデフォルトのプレフィルタースイッチあり（一部プラットフォームでは無効化可能）
+| リポジトリ | 内容 |
+|-----------|------|
+| [awesome-seedance](https://github.com/ZeroLu/awesome-seedance) | シネマティック/アニメ/UGC/広告/ミーム向け500+プロンプト |
+| [awesome-seedance-2-prompts](https://github.com/YouMind-OpenLab/awesome-seedance-2-prompts) | 500+プロンプト + APIガイド |
 
 ---
 
-## 14. プラットフォーム関係図
+## 11. 活用ジャンル
 
-```
-ByteDance Seedチーム
-  │
-  ├── Seedream（画像生成モデル）
-  │     ├── Dreamina / 即梦 / Jimeng（コンシューマー向け）
-  │     ├── CapCut / 剪映（動画編集アプリ内統合）
-  │     ├── BytePlus / ModelArk（エンタープライズAPI）
-  │     ├── 小云雀 / Oriental Skylark（中国国内）
-  │     └── サードパーティ（fal.ai, Together AI, Replicate等）
-  │
-  ├── Seedance（動画生成モデル）
-  │     └── 上記と同じプラットフォームで提供
-  │
-  ├── Seaweed（動画生成基盤モデル）
-  │
-  └── Doubao / 豆包（AIアシスタント - Seedreamと連携）
-```
+- **シネマティック映像**: ハリウッド映画レベルのVFXシーンをテキストだけで生成
+- **商品プロモーション/広告**: UGCスタイルのインフルエンサー風動画を自動生成
+- **アニメ/マンガ**: キャラクター一貫性テスト、ダイナミックアクションシーケンス
+- **ミーム/バイラルコンテンツ**: 超現実的な要素（巨大猫シナリオなど）
+- **ショートドラマ/Webシリーズ**: ナラティブ駆動コンテンツ
+- **中国語テキスト入り画像**: ポスター、バナー、書道風画像
 
 ---
 
-## 15. 参考リンク集
+## 12. 公式リソース一覧
 
-### 論文
-
-| タイトル | URL |
+| リソース | URL |
 |---------|-----|
-| Seedream 2.0 (arXiv) | https://arxiv.org/abs/2503.07703 |
-| Seedream 2.0 (HTML版) | https://arxiv.org/html/2503.07703v1 |
-| Seedream 3.0 Technical Report | https://arxiv.org/abs/2504.11346 |
-| HuggingFace Papers | https://huggingface.co/papers/2503.07703 |
-| ResearchGate | https://www.researchgate.net/publication/389748435 |
-
-### 公式
-
-| サイト | URL |
-|-------|-----|
-| ByteDance Seed公式 | https://seed.bytedance.com/en/ |
-| Dreamina公式 | https://dreamina.capcut.com |
-| 即梦 (Jimeng) | https://jimeng.jianying.com |
-| BytePlus ModelArk | https://console.byteplus.com |
-| Seaweed | https://seaweed.video/ |
-
-### 日本語チュートリアル・ガイド
-
-| タイトル | URL |
-|---------|-----|
-| Seedream 5.0使い方 Dreamina公式 | https://dreamina.capcut.com/ja-jp/resource/how-to-use-seedream-5-0 |
-| Seedream 4.0完全解説（図解） | https://ai-workstyle.com/ai-seedream4-0/ |
-| Seedream 4.0使い方完全ガイド | https://ai-gaido.com/seedream-4-0-use-guide/ |
-| Seedream 4.5徹底解説（WEEL） | https://weel.co.jp/media/tech/seedream-4-5/ |
-| ComfyUIで使う方法（note.com） | https://note.com/seal309midorin/n/n4cd3147d4c6d |
-| プロンプトのコツ（note.com） | https://note.com/genel/n/n97c215fddc7c |
-| プロンプト攻略ガイド（note.com） | https://note.com/tasty_dunlin998/n/n5472617b9feb |
-| romptn Magazine Seedream 4.0解説 | https://romptn.com/article/73378 |
-| Seedream実践編プロンプト（MaisonAI） | https://maisonai.io/en/blogs/guidebook/seedream-imagegereration-2 |
-
-### 英語チュートリアル・ガイド
-
-| タイトル | URL |
-|---------|-----|
-| Complete Tutorial 4.0→5.0 (WaveSpeed) | https://wavespeed.ai/blog/posts/seedream-4-0-to-5-0-complete-tutorial-image-generation-editing/ |
-| Seedream 5.0 Complete Guide (WaveSpeed) | https://wavespeed.ai/blog/posts/seedream-5-0-preview-complete-guide-intelligent-image-generation/ |
-| Guide to Seedream 4 (getimg.ai) | https://getimg.ai/blog/guide-to-bytedance-seedream-4-ai-image-model |
-| Prompt Engineering Guide (Segmind) | https://blog.segmind.com/mastering-seedream-prompt-engineering-guide/ |
-| Seedream v4.5 Prompt Guide (fal.ai) | https://fal.ai/learn/devs/seedream-v4-5-prompt-guide |
-| 公式Prompt Guide (BytePlus) | https://docs.byteplus.com/en/docs/ModelArk/1829186 |
-| 70 Styles Prompt Book (Sider.ai) | https://sider.ai/blog/ai-tools/seedream-4-0-prompt-book-70-styles-for-portraits-fashion-and-products |
-| Consistent Characters Guide (Sider.ai) | https://sider.ai/blog/ai-tools/how-to-use-seedream-4-0-for-consistent-characters-a-step-by-step-playbook |
-| Quick Start Guide (Segmind) | https://blog.segmind.com/quick-start-guide-seedream/ |
-| Seedream 4o Prompting Guide (Atlabs) | https://www.atlabs.ai/blog/seedream-4o-prompting-guide |
-| How to use Seedream 4.5 (Artlist) | https://artlist.io/blog/how-to-use-seedream-4-5/ |
-| API Guide 4.0-5.0 (BytePlus) | https://docs.byteplus.com/en/docs/ModelArk/1824121 |
-| FLUX 2 vs Seedream比較 | https://wavespeed.ai/blog/en/blog/posts/flux-2-vs-seedream-comparison-2026/ |
-| 5.0 vs Nano Banana 2テキスト比較 | https://blog.segmind.com/seedream-5-0-lite-vs-nano-banana-2-a-text-rendering-showdown-across-7-real-world-use-cases/ |
-
-### ComfyUI
-
-| タイトル | URL |
-|---------|-----|
-| 公式ブログ Seedream 4.0 | https://blog.comfy.org/p/seedream-40-now-available-in-comfyui |
-| 公式ブログ Seedream 5.0 Lite | https://blog.comfy.org/p/seedream-50-lite-now-available-in |
-| カスタムノード (kookliu) | https://github.com/kookliu/ComfyUI-Custom-Nodes |
-| Jimeng API版 (fkxianzhou) | https://github.com/fkxianzhou/ComfyUI-Jimeng-API |
-| Civitaiワークフロー | https://civitai.com/models/1968364 |
-| 無料テンプレート | https://www.comfy.org/workflows/model/seedream-4-0/ |
-
-### API・サードパーティ
-
-| サービス | URL |
-|---------|-----|
-| Together AI | https://www.together.ai/models/bytedance-seedream-4-0 |
-| fal.ai | https://fal.ai/models/fal-ai/bytedance/seedream/ |
-| Replicate | https://replicate.com/bytedance/seedream-4 |
-| Kie.ai | https://kie.ai/seedream-api |
-| OpenRouter | https://openrouter.ai/bytedance-seed/seedream-4.5 |
-| Jimeng無料API (GitHub) | https://github.com/wwwzhouhui/jimeng-free-api-all |
-| Seedream 5.0 Lite API Guide | https://help.apiyi.com/en/seedream-5-0-lite-api-guide-cheaper-than-4-5-en.html |
-
-### X (Twitter) 注目投稿
-
-| 投稿者 | URL/内容 |
-|-------|---------|
-| @TheoMediaAI | Seedream 2.0 Rundownと高評価 |
-| @gavinpurcell | API課金する意欲を表明 |
-| @dreamina_ai | Seedance 2.0 + Seedream 5.0 Lite公式発表 |
-| @karim_yourself | BytePlus Playgroundでの使い方解説 |
-
-### 中国語圏リソース
-
-| サイト | URL |
-|-------|-----|
-| 知乎: Seedream 2.0技術解説 | https://zhuanlan.zhihu.com/p/29658716094 |
-| 知乎: 即梦4.0完整使用指南 | https://zhuanlan.zhihu.com/p/1949046485430834996 |
-| Bilibili: Seedream 4.0深度評測 | https://www.bilibili.com/video/BV1LcHzzrEiB/ |
-| Bilibili: 全網最全玩法 | https://www.bilibili.com/video/BV19LWGzPE9k/ |
-| Bilibili: Seedream 5.0応用 | https://www.bilibili.com/video/BV1M8c7zSERT/ |
-| Bilibili: バッチ生成ツール | https://www.bilibili.com/video/BV1obWwzyEeu/ |
-| RAR Design: 即夢AI完整介紹 | https://rar.design/posts/jimeng-ai-dreamina-guide |
-| AIBase: Seedream 2.0ニュース | https://www.aibase.com/news/16216 |
-| 36Kr: Seedream 5.0リリース | https://eu.36kr.com/en/p/3677025348395653 |
-
-### モデル比較・レビュー
-
-| タイトル | URL |
-|---------|-----|
-| FLUX vs Seedream vs Midjourney vs GPT vs Gemini | https://imagewise.app/blog/flux-seedream-midjourney-gpt-image-vs-gemini |
-| AI Image Model Comparison (Artificial Analysis) | https://artificialanalysis.ai/image/models |
-| FLUX 2 vs Seedream比較 (WaveSpeed) | https://wavespeed.ai/blog/en/blog/posts/flux-2-vs-seedream-comparison-2026/ |
-| Seedream vs Midjourney (SourceForge) | https://sourceforge.net/software/compare/Midjourney-vs-Seedream/ |
-| 5.0 vs Nano Banana 2テキスト比較 (Segmind) | https://blog.segmind.com/seedream-5-0-lite-vs-nano-banana-2-a-text-rendering-showdown-across-7-real-world-use-cases/ |
-| Community Review (AllAboutAI) | https://www.allaboutai.com/ai-reviews/seedream/ |
-| TechRadar レビュー | https://www.techradar.com/ai-platforms-assistants/tiktok-creators-new-ai-image-generator-is-the-best-ive-ever-seen-and-its-terrifying |
-
-### その他
-
-| サイト | URL |
-|-------|-----|
+| arXiv論文 | https://arxiv.org/abs/2503.07703 |
+| arXiv HTML版 | https://arxiv.org/html/2503.07703v1 |
+| HuggingFace Paper | https://huggingface.co/papers/2503.07703 |
+| ByteDance Seed公式 | https://seed.bytedance.com/en/models |
+| Semantic Scholar | https://www.semanticscholar.org/paper/fd60d01f49e3afaebac44bbd8ea89551e5a7418b |
+| Seedream 3.0論文 | https://arxiv.org/abs/2504.11346 |
+| Seedream 4.0公式 | https://seed.bytedance.com/en/seedream4_0 |
+| Seedream 4.5公式 | https://seed.bytedance.com/en/seedream4_5 |
+| Dreamina（国際版） | https://dreamina.capcut.com |
+| BytePlus Seedream | https://www.byteplus.com/en/product/Seedream |
 | Product Hunt | https://www.producthunt.com/products/seedream-2-0 |
-| Seedance Discord | https://discord.com/invite/zZFUeA8ZQF |
-| Doubao完全ガイド (PhotoGrid) | https://www.photogrid.app/blog/what-is-doubao/ |
-| Global Times Seedance 2.0 | https://www.globaltimes.cn/page/202602/1355164.shtml |
-| Prompt Guide (Scenario.com) | https://www.scenario.com/blog/craft-prompts-gemini-seedream |
-| Seedream Evolution (getimg.ai) | https://getimg.ai/blog/guide-to-bytedance-seedream-4-ai-image-model |
+
+---
+
+## 13. 報道リソース一覧
+
+| メディア | 記事 | URL |
+|---------|------|-----|
+| Variety | MPA Denounces Seedance 2.0 | https://variety.com/2026/film/news/motion-picture-association-ai-seedance-bytedance-tom-cruise-1236661753/ |
+| Hollywood Reporter | Seedance 2.0 Sparks Hollywood Backlash | https://www.hollywoodreporter.com/business/business-news/seedance-2-0-sparks-hollywood-backlash-1236505120/ |
+| Deadline | Cruise Vs Pitt Deepfake | https://deadline.com/2026/02/cruise-vs-pitt-seedance-viral-ai-hollywood-videos-1236717127/ |
+| TechCrunch | Seedance 2.0 comes to CapCut | https://techcrunch.com/2026/03/26/bytedances-new-ai-video-generation-model-dreamina-seedance-2-0-comes-to-capcut/ |
+| テクノエッジ | Seedance 2.0旋風 | https://www.techno-edge.net/article/2026/02/16/4868.html |
+| ITmedia | AI「Seedance 2.0」で日本のアニメ無断利用 | https://www.itmedia.co.jp/aiplus/articles/2602/16/news065.html |
+| 映画.com | 米映画業界一斉非難 | https://eiga.com/news/20260216/11/ |
+| CineD | Viral AI Fight Triggers Hollywood Backlash | https://www.cined.com/viral-ai-fight-between-tom-cruise-and-brad-pitt-triggers-hollywood-wide-backlash-against-bytedances-seedance-2-0/ |
+| No Film School | Seedance 2.0 Review | https://nofilmschool.com/seedance-2-0-ai-video-model |
+
+---
+
+## 14. 現時点での総括
+
+**Seedream 2.0**（画像生成）は2024年12月リリース時点では最先端だったが、2026年4月現在では4世代後の後継（Seedream 5.0 Lite）が存在する。実用目的なら現行のSeedream 4.5/5.0 Liteが合理的。歴史的意義としては、バイリンガルLLMテキストエンコーダとGlyph-Aligned ByT5による中国語テキストレンダリングの革新が後続バージョンすべての基盤技術となった。
+
+**Seedance 2.0**（動画生成）が2026年2月にSNSで爆発的にバズした本命。ハリウッド俳優のディープフェイク動画やアニメIPの無断生成が世界的な著作権論争を引き起こし、主要メディアで一斉報道された。技術的には@タグ参照システムとマルチモーダル入力が革新的だが、著作権問題により2026年3月15日にグローバル展開は一時停止中（3月26日にCapCut統合は進行）。

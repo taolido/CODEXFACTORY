@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自然物3Dモデル生成AI 総合リサーチレポート</title>
+<style>
+:root{--bg:#080c0a;--surface:#111916;--surface2:#182420;--border:#243830;--text:#dce8e0;--text-dim:#8aa899;--accent:#34d399;--accent-light:#6ee7b7;--orange:#f59e0b;--blue:#60a5fa;--purple:#a78bfa;--red:#f87171;--pink:#f472b6;--cyan:#22d3ee;--g1:linear-gradient(135deg,#34d399,#22d3ee);--g2:linear-gradient(135deg,#f59e0b,#f472b6);--g3:linear-gradient(135deg,#a78bfa,#60a5fa)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',-apple-system,'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:15px}
+.hero{position:relative;overflow:hidden;padding:80px 40px 60px;text-align:center;background:linear-gradient(180deg,#0a1a12 0%,var(--bg) 100%)}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 40%,rgba(52,211,153,.12) 0%,transparent 50%),radial-gradient(ellipse at 70% 60%,rgba(34,211,238,.08) 0%,transparent 50%);animation:glow 10s ease-in-out infinite alternate}
+@keyframes glow{0%{transform:scale(1) rotate(0)}100%{transform:scale(1.04) rotate(1.5deg)}}
+.hero-content{position:relative;z-index:1;max-width:900px;margin:0 auto}
+.hero h1{font-size:2.6rem;font-weight:800;background:var(--g1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px}
+.hero .subtitle{font-size:1.05rem;color:var(--text-dim);margin-bottom:20px}
+.meta{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+.meta-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:18px;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);font-size:.8rem;color:var(--accent-light)}
+.container{max-width:1120px;margin:0 auto;padding:0 24px}
+.toc{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:26px 30px;margin:36px auto;max-width:720px}
+.toc h2{font-size:1rem;color:var(--accent-light);margin-bottom:12px}
+.toc ol{list-style:none;counter-reset:toc;columns:2;column-gap:20px}
+.toc li{counter-increment:toc;margin-bottom:4px;break-inside:avoid}
+.toc a{color:var(--text-dim);text-decoration:none;font-size:.86rem;display:flex;align-items:center;gap:5px;transition:color .2s}
+.toc a::before{content:counter(toc,decimal-leading-zero);color:var(--accent);font-weight:700;font-size:.76rem;min-width:20px}
+.toc a:hover{color:var(--accent-light)}
+section{margin:52px 0}
+section h2{font-size:1.45rem;font-weight:700;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px}
+.si{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+section h3{font-size:1.05rem;font-weight:600;margin:22px 0 10px;color:var(--accent-light)}
+section h4{font-size:.92rem;font-weight:600;margin:16px 0 6px;color:var(--cyan)}
+.alert{border-radius:11px;padding:16px 20px;margin:18px 0;display:flex;gap:11px;align-items:flex-start}
+.alert-info{background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2)}
+.alert-success{background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.2)}
+.alert-warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2)}
+.alert-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px}
+.alert-body{flex:1}
+.alert-body strong{display:block;margin-bottom:2px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}
+.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:16px 0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.stat-card{text-align:center}
+.sv{font-size:1.8rem;font-weight:800;background:var(--g1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sl{font-size:.78rem;color:var(--text-dim);margin-top:2px}
+.tw{overflow-x:auto;margin:14px 0;border-radius:11px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.86rem}
+thead{background:var(--surface2)}
+th{padding:10px 13px;text-align:left;font-weight:600;color:var(--accent-light);white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:8px 13px;border-bottom:1px solid rgba(36,56,48,.5);color:var(--text-dim)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(52,211,153,.03)}
+td strong,td b{color:var(--text)}
+td a{color:var(--blue);text-decoration:none}
+td a:hover{text-decoration:underline}
+td code{background:var(--surface2);padding:1px 5px;border-radius:3px;font-size:.8rem;color:var(--cyan)}
+.bar-chart{margin:16px 0}
+.bar-row{display:flex;align-items:center;margin-bottom:7px;gap:9px}
+.bar-label{min-width:140px;font-size:.82rem;color:var(--text-dim);text-align:right}
+.bar-track{flex:1;height:24px;background:var(--surface);border-radius:5px;overflow:hidden}
+.bar-fill{height:100%;border-radius:5px;display:flex;align-items:center;padding:0 9px;font-size:.74rem;font-weight:700;color:#fff;white-space:nowrap}
+.tip-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin:16px 0}
+.tip-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:16px}
+.tip-card.do{border-left:3px solid var(--accent)}
+.tip-card.dont{border-left:3px solid var(--red)}
+.tip-card h4{font-size:.86rem;margin:0 0 5px}
+.tip-card.do h4{color:var(--accent)}
+.tip-card.dont h4{color:var(--red)}
+.tip-card ul{list-style:none;font-size:.82rem;color:var(--text-dim)}
+.tip-card ul li{padding:2px 0 2px 15px;position:relative}
+.tip-card.do ul li::before{content:'+';position:absolute;left:0;color:var(--accent);font-weight:700}
+.tip-card.dont ul li::before{content:'x';position:absolute;left:0;color:var(--red);font-weight:700}
+.link-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:9px;margin:12px 0}
+.link-card{display:flex;align-items:center;gap:9px;padding:11px 13px;background:var(--surface);border:1px solid var(--border);border-radius:9px;text-decoration:none;transition:border-color .2s,transform .15s}
+.link-card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.li{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+.lt{font-size:.82rem;font-weight:600;color:var(--text)}
+.ld{font-size:.72rem;color:var(--text-dim)}
+.flow{display:flex;gap:0;margin:20px 0;overflow-x:auto;padding-bottom:4px}
+.flow-step{flex:1;min-width:120px;padding:12px;background:var(--surface);border:1px solid var(--border);text-align:center;position:relative}
+.flow-step:first-child{border-radius:10px 0 0 10px}
+.flow-step:last-child{border-radius:0 10px 10px 0}
+.flow-step:not(:last-child)::after{content:'';position:absolute;right:-8px;top:50%;transform:translateY(-50%);border:6px solid transparent;border-left:8px solid var(--accent);z-index:1}
+.fn{display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;border-radius:50%;background:var(--g1);color:#000;font-size:.7rem;font-weight:700;margin-bottom:3px}
+.fl{font-size:.78rem;font-weight:600;color:var(--text);display:block}
+.fd{font-size:.68rem;color:var(--text-dim);margin-top:2px}
+.footer{text-align:center;padding:40px 24px;border-top:1px solid var(--border);margin-top:56px;color:var(--text-dim);font-size:.78rem}
+@media(max-width:768px){.hero h1{font-size:1.7rem}.g2,.tip-grid{grid-template-columns:1fr}.g3{grid-template-columns:1fr}.toc ol{columns:1}.flow{flex-direction:column}.flow-step{border-radius:0!important}.flow-step:first-child{border-radius:10px 10px 0 0!important}.flow-step:last-child{border-radius:0 0 10px 10px!important}.flow-step:not(:last-child)::after{display:none}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+<div class="hero-content">
+<h1>自然物 3Dモデル生成AI</h1>
+<p class="subtitle">地形・植生・雪山・畑・岩・水 - AI 3D生成ツール総合リサーチ</p>
+<div class="meta">
+<span class="meta-tag">&#127793; 2026-04-12</span>
+<span class="meta-tag">&#127956; Terrain / Vegetation / Nature</span>
+<span class="meta-tag">&#128187; Blender Compatible</span>
+</div>
+</div>
+</header>
+
+<div class="container">
+
+<nav class="toc">
+<h2>&#128209; Contents</h2>
+<ol>
+<li><a href="#summary">結論サマリー</a></li>
+<li><a href="#terrain">地形生成ツール</a></li>
+<li><a href="#vegetation">植生・樹木生成</a></li>
+<li><a href="#t2scene">Text-to-3Dシーン（研究最前線）</a></li>
+<li><a href="#i2d">Image/Drone-to-3D復元</a></li>
+<li><a href="#gs">Gaussian Splatting（自然環境）</a></li>
+<li><a href="#nature-cat">自然物カテゴリ別ベストツール</a></li>
+<li><a href="#compare">AI 3D生成サービス比較</a></li>
+<li><a href="#blender">Blenderワークフロー</a></li>
+<li><a href="#resources">リソース・ガイド一覧</a></li>
+</ol>
+</nav>
+
+<!-- 1 SUMMARY -->
+<section id="summary">
+<h2><span class="si" style="background:rgba(52,211,153,.12);">&#9733;</span> 結論サマリー</h2>
+
+<div class="alert alert-success">
+<span class="alert-icon">&#128161;</span>
+<div class="alert-body"><strong>現時点での最適解</strong>
+「AIで自然環境をまるごと生成」はまだ発展途上。<b>プロシージャル + AI + 手動</b>のハイブリッドが最も実用的。用途別の推奨ツールは以下の通り。</div>
+</div>
+
+<div class="g3">
+<div class="card" style="border-top:3px solid var(--accent);">
+<h4 style="color:var(--accent);">地形生成 No.1</h4>
+<p style="font-size:1.2rem;font-weight:800;margin:6px 0;">Gaea 2.2</p>
+<p style="font-size:.82rem;color:var(--text-dim);">AI浸食 + プロシージャル。Community版無料。映画/ゲーム実績多数。Blenderへハイトマップ/OBJ出力可。</p>
+</div>
+<div class="card" style="border-top:3px solid var(--blue);">
+<h4 style="color:var(--blue);">実在地形の3D化</h4>
+<p style="font-size:1.2rem;font-weight:800;margin:6px 0;">BlenderGIS</p>
+<p style="font-size:.82rem;color:var(--text-dim);">無料。衛星/GISデータから実地形をBlenderに直接インポート。Mapbox標高データ対応。</p>
+</div>
+<div class="card" style="border-top:3px solid var(--purple);">
+<h4 style="color:var(--purple);">プロシージャル自然環境</h4>
+<p style="font-size:1.2rem;font-weight:800;margin:6px 0;">Infinigen</p>
+<p style="font-size:.82rem;color:var(--text-dim);">Princeton大。Blenderネイティブ。植生・地形・水・雲すべてプロシージャル生成。無料OSS。</p>
+</div>
+</div>
+
+<div class="g3">
+<div class="card" style="border-top:3px solid var(--orange);">
+<h4 style="color:var(--orange);">個別自然物アセット</h4>
+<p style="font-size:1.2rem;font-weight:800;margin:6px 0;">Rodin Gen-2 / Meshy</p>
+<p style="font-size:.82rem;color:var(--text-dim);">岩・木等をAIで個別生成。Rodinはフォトリアル最高。MeshyはコスパNo.1。</p>
+</div>
+<div class="card" style="border-top:3px solid var(--cyan);">
+<h4 style="color:var(--cyan);">屋外3Dキャプチャ</h4>
+<p style="font-size:1.2rem;font-weight:800;margin:6px 0;">Luma AI / Nerfstudio</p>
+<p style="font-size:.82rem;color:var(--text-dim);">写真/動画から3DGS復元。自然環境のキャプチャに最適。Nerfstudioは無料OSS。</p>
+</div>
+<div class="card" style="border-top:3px solid var(--pink);">
+<h4 style="color:var(--pink);">無料自然アセット</h4>
+<p style="font-size:1.2rem;font-weight:800;margin:6px 0;">Megascans / Poly Haven</p>
+<p style="font-size:.82rem;color:var(--text-dim);">Quixel Megascans (Fab経由)=完全無料。Poly Haven=CC0。フォトスキャン品質。</p>
+</div>
+</div>
+</section>
+
+<!-- 2 TERRAIN -->
+<section id="terrain">
+<h2><span class="si" style="background:rgba(245,158,11,.12);">&#9968;</span> 地形生成ツール</h2>
+
+<div class="tw">
+<table>
+<thead><tr><th>ツール</th><th>開発元</th><th>AI要素</th><th>価格</th><th>出力</th><th>Blender連携</th></tr></thead>
+<tbody>
+<tr><td><b style="color:var(--accent);">Gaea 2.2</b></td><td>QuadSpinner</td><td>AI浸食シミュレーション (Intelligent Erosion)</td><td>Community: <b>無料</b>(1K) / Pro: $199 / Ent: $299</td><td>ハイトマップ / OBJ / FBX</td><td>Blenderブリッジ / ハイトマップDisplacement</td></tr>
+<tr><td><b>World Machine 4</b></td><td>Stephen Schmitt</td><td>ML地形パターン認識（一部）</td><td>Basic: <b>無料</b> / Std: $119 / Pro: $299</td><td>ハイトマップ / メッシュ / スプラットマップ</td><td>ハイトマップ/OBJ経由</td></tr>
+<tr><td><b>World Creator</b></td><td>BiteTheBytes</td><td>リアルタイムGPU地形。バイオームシステム</td><td>Community: <b>無料</b> / Indie: $99永久</td><td>ハイトマップ / メッシュ</td><td>エクスポート経由</td></tr>
+<tr><td><b>Instant Terra</b></td><td>Wysilab</td><td>超高速。100+ノード。数十億クアッド</td><td>8K: $149永久 / 無制限: $199永久</td><td>ハイトマップ / メッシュ</td><td>エクスポート経由</td></tr>
+<tr><td><b>Gaea 3.0</b></td><td>QuadSpinner</td><td>新ベクターツール（2026中期予定）</td><td>未発表</td><td>-</td><td>-</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>品質スコア（浸食リアリズム）</h3>
+<div class="bar-chart">
+<div class="bar-row"><span class="bar-label"><b>Gaea 2.2</b></span><div class="bar-track"><div class="bar-fill" style="width:98%;background:var(--g1);">業界最高</div></div></div>
+<div class="bar-row"><span class="bar-label">World Machine 4</span><div class="bar-track"><div class="bar-fill" style="width:92%;background:rgba(96,165,250,.5);">AAA実績最多</div></div></div>
+<div class="bar-row"><span class="bar-label">World Creator</span><div class="bar-track"><div class="bar-fill" style="width:85%;background:rgba(167,139,250,.5);">リアルタイムGPU</div></div></div>
+<div class="bar-row"><span class="bar-label">Instant Terra</span><div class="bar-track"><div class="bar-fill" style="width:80%;background:rgba(245,158,11,.5);">超高速</div></div></div>
+</div>
+</section>
+
+<!-- 3 VEGETATION -->
+<section id="vegetation">
+<h2><span class="si" style="background:rgba(52,211,153,.12);">&#127794;</span> 植生・樹木生成</h2>
+<div class="tw">
+<table>
+<thead><tr><th>ツール</th><th>価格</th><th>特徴</th><th>Blender対応</th></tr></thead>
+<tbody>
+<tr><td><b>SpeedTree 10</b></td><td>Indie: $19/月 / Full: $599/年</td><td>業界標準。AI枝分岐パターン。映画品質（アバター等）</td><td>FBX/OBJ/Alembic</td></tr>
+<tr><td><b>PlantFactory</b></td><td>$349~</td><td>プロシージャル植物。キノコ~巨木</td><td>エクスポート</td></tr>
+<tr><td><b>Natsura</b></td><td>有料</td><td>Houdiniネイティブ。Nanite対応。グロースグラフエンジン</td><td>Houdini経由</td></tr>
+<tr><td><b style="color:var(--accent);">TreeIt</b></td><td><b>無料</b></td><td>SpeedTreeの最良の無料代替</td><td>エクスポート</td></tr>
+<tr><td><b style="color:var(--accent);">Megaplants</b></td><td><b>無料</b>(Fab)</td><td>Quixelフォトスキャン植物。Nanite対応</td><td>FBX</td></tr>
+<tr><td><b>Botaniq</b></td><td>$49</td><td>Blenderネイティブ植生ライブラリ + GNベース配置</td><td>ネイティブ</td></tr>
+<tr><td><b>FloraForge</b></td><td>研究段階</td><td>LLM支援で生物学的に正確な植物モデル生成</td><td>-</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- 4 TEXT-TO-SCENE -->
+<section id="t2scene">
+<h2><span class="si" style="background:rgba(167,139,250,.12);">&#129302;</span> Text-to-3Dシーン（研究最前線）</h2>
+
+<div class="alert alert-warn">
+<span class="alert-icon">&#9888;</span>
+<div class="alert-body"><strong>大規模自然景観のAI一括生成はまだ研究段階</strong>単一オブジェクトの3D生成は成熟したが、「テキスト → 森林全体」のような生成は1-2年先の実用化。</div>
+</div>
+
+<div class="tw">
+<table>
+<thead><tr><th>モデル</th><th>年</th><th>出力</th><th>強み</th><th>制限</th></tr></thead>
+<tbody>
+<tr><td><b style="color:var(--accent);">Infinigen</b> (Princeton)</td><td>2023-</td><td><b>Blenderシーン (.blend)</b></td><td>植生・地形・水・雲すべてプロシージャル。Blenderネイティブ</td><td>生成に時間。Python知識必要</td></tr>
+<tr><td><b>SceneDreamer</b></td><td>2023-24</td><td>ニューラルレンダリング</td><td>無限に広がる3D自然風景生成</td><td>直接メッシュ出力ではない</td></tr>
+<tr><td><b>LucidDreamer</b></td><td>2024</td><td>3D Gaussian Splatting</td><td>テキスト/画像→3DGSシーン。屋外対応</td><td>メッシュ変換に追加処理</td></tr>
+<tr><td><b>WonderWorld</b></td><td>2024</td><td>3DGS / メッシュ</td><td>単一画像からインタラクティブに3Dシーン拡張</td><td>中規模シーン</td></tr>
+<tr><td><b>Director3D</b></td><td>2024</td><td>3DGS</td><td>テキスト→カメラ軌道+3Dシーン同時生成</td><td>研究段階</td></tr>
+<tr><td><b>Text2Room</b></td><td>2023</td><td>テクスチャ付きメッシュ</td><td>メッシュ直接出力</td><td>主に室内向け</td></tr>
+<tr><td><b>Persistent Nature</b></td><td>2024</td><td>ニューラル</td><td>無限に続く自然風景の3D生成</td><td>研究段階</td></tr>
+<tr><td><b>Trellis</b> (MS)</td><td>2024-25</td><td>メッシュ / 3DGS</td><td>単一オブジェクト3D生成の最高品質</td><td>シーンレベルは未対応</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- 5 IMAGE-TO-3D -->
+<section id="i2d">
+<h2><span class="si" style="background:rgba(96,165,250,.12);">&#128247;</span> Image/Drone-to-3D 復元</h2>
+
+<h3>革命的な基盤モデル</h3>
+<div class="g2">
+<div class="card" style="border-top:3px solid var(--blue);">
+<h4 style="color:var(--blue);">DUSt3R / MASt3R (Naver Labs)</h4>
+<p style="font-size:.82rem;color:var(--text-dim);">任意の画像ペアから<b>カメラキャリブレーション不要</b>で3D復元。屋外シーン対応。MASt3Rはさらに高精度。</p>
+<p style="font-size:.78rem;margin-top:6px;"><a href="https://github.com/naver/dust3r" style="color:var(--blue);">github.com/naver/dust3r</a></p>
+</div>
+<div class="card" style="border-top:3px solid var(--purple);">
+<h4 style="color:var(--purple);">Depth Pro (Apple) / Depth Anything V2</h4>
+<p style="font-size:.82rem;color:var(--text-dim);">単一画像から深度マップを高速推定。風景写真の3D化に最適。Depth Pro: 0.3秒、メトリックスケール付き。</p>
+<p style="font-size:.78rem;margin-top:6px;"><a href="https://github.com/apple/ml-depth-pro" style="color:var(--blue);">github.com/apple/ml-depth-pro</a></p>
+</div>
+</div>
+
+<h3>ドローンフォトグラメトリ</h3>
+<div class="tw">
+<table>
+<thead><tr><th>ツール</th><th>種別</th><th>価格</th><th>強み</th></tr></thead>
+<tbody>
+<tr><td><b>RealityCapture</b></td><td>商用</td><td>サブスク</td><td>処理速度最速。大規模データセット</td></tr>
+<tr><td><b>Pix4D</b></td><td>商用</td><td>$350/月~</td><td>DJI最深統合。農業・測量実績</td></tr>
+<tr><td><b>Agisoft Metashape</b></td><td>商用</td><td>$179~永久</td><td>オフライン最高精度</td></tr>
+<tr><td><b>DJI Terra</b></td><td>商用</td><td>$299/年~</td><td>AI強化3D再構築。自然地形マッピング</td></tr>
+<tr><td><b style="color:var(--accent);">OpenDroneMap</b></td><td>OSS</td><td><b>無料</b></td><td>完全オープンソースで実用レベル</td></tr>
+<tr><td><b>GLOMAP</b></td><td>OSS</td><td><b>無料</b></td><td>COLMAP後継。10倍高速。大規模屋外対応</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>GIS → 3D地形</h3>
+<div class="tw">
+<table>
+<thead><tr><th>ツール</th><th>価格</th><th>内容</th><th>Blender連携</th></tr></thead>
+<tbody>
+<tr><td><b style="color:var(--accent);">BlenderGIS</b></td><td><b>無料</b></td><td>OSM/SRTM標高/衛星画像をBlenderに直接インポート</td><td>ネイティブアドオン</td></tr>
+<tr><td><b>blosm</b></td><td>無料/有料</td><td>OSMから建物・地形生成</td><td>ネイティブ</td></tr>
+<tr><td><b>Google 3D Tiles</b></td><td>無料枠あり</td><td>地球規模のフォトリアル3Dタイル</td><td>Cesiumプラグイン</td></tr>
+<tr><td><b>Mapbox Terrain</b></td><td>無料枠あり</td><td>標高データ提供</td><td>BlenderGIS経由</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- 6 GAUSSIAN SPLATTING -->
+<section id="gs">
+<h2><span class="si" style="background:rgba(34,211,238,.12);">&#128302;</span> Gaussian Splatting（自然環境）</h2>
+
+<div class="tw">
+<table>
+<thead><tr><th>手法</th><th>年</th><th>スケール</th><th>特徴</th></tr></thead>
+<tbody>
+<tr><td><b>3DGS (Original)</b></td><td>2023</td><td>小~中</td><td>リアルタイムレンダリング。NeRFの30倍速</td></tr>
+<tr><td><b>VastGaussian</b></td><td>2024</td><td><b>大規模</b></td><td>分割統治法。数km四方を復元可能</td></tr>
+<tr><td><b>CityGaussian</b></td><td>2024</td><td>都市規模</td><td>LOD対応リアルタイムレンダリング</td></tr>
+<tr><td><b>GaussianPro</b></td><td>2024</td><td>中~大</td><td>テクスチャの少ない領域（空・地面）に強い</td></tr>
+<tr><td><b>Mip-Splatting</b></td><td>2024</td><td>汎用</td><td>エイリアシング解消。遠景~近景の品質安定</td></tr>
+<tr><td><b>FlashGS</b></td><td>2025</td><td>大規模屋外</td><td>4Kリアルタイムレンダリング (CVPR 2025)</td></tr>
+<tr><td><b>SuGaR / 2DGS</b></td><td>2024</td><td>-</td><td>3DGS→メッシュ変換（Blender利用に必須）</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>商用キャプチャサービス</h3>
+<div class="g3">
+<div class="card" style="border-top:3px solid var(--cyan);">
+<h4 style="color:var(--cyan);">Luma AI</h4>
+<p style="font-size:.82rem;color:var(--text-dim);">スマホ撮影→3DGS/NeRF。屋外の庭園・岩場・森林に対応。高テクスチャ再現性。</p>
+<p style="font-size:.78rem;">Pro: $30/月 / 無料枠あり</p>
+</div>
+<div class="card" style="border-top:3px solid var(--blue);">
+<h4 style="color:var(--blue);">Polycam</h4>
+<p style="font-size:.82rem;color:var(--text-dim);">LiDAR/フォトグラメトリ。中規模屋外環境。OBJ/FBX/PLYエクスポート。</p>
+<p style="font-size:.78rem;">Pro: $12/月 / 無料枠あり</p>
+</div>
+<div class="card" style="border-top:3px solid var(--accent);">
+<h4 style="color:var(--accent);">Nerfstudio</h4>
+<p style="font-size:.82rem;color:var(--text-dim);">OSS統合フレームワーク。NeRF/3DGSを統一API。コマンドラインで屋外シーン復元。</p>
+<p style="font-size:.78rem;"><b>無料</b> (オープンソース)</p>
+</div>
+</div>
+</section>
+
+<!-- 7 CATEGORY -->
+<section id="nature-cat">
+<h2><span class="si" style="background:rgba(244,114,182,.12);">&#127807;</span> 自然物カテゴリ別ベストツール</h2>
+
+<div class="tw">
+<table>
+<thead><tr><th>カテゴリ</th><th>ベストツール</th><th>次点</th><th>無料選択肢</th></tr></thead>
+<tbody>
+<tr><td><b>&#9968; 地形・山岳</b></td><td>Gaea 2.2</td><td>World Machine / Instant Terra</td><td>Gaea Community / A.N.T. Landscape</td></tr>
+<tr><td><b>&#127794; 樹木・植生</b></td><td>SpeedTree 10</td><td>Natsura (Houdini)</td><td>TreeIt / Megaplants</td></tr>
+<tr><td><b>&#129704; 岩・崖</b></td><td>Rodin Gen-2 (AI生成)</td><td>Gaea岩ノード</td><td>Megascans (Fab)</td></tr>
+<tr><td><b>&#127754; 水・河川</b></td><td>Oceanology Pro (UE5)</td><td>LiquiGen (JangaFX)</td><td>Blender流体シミュレーション</td></tr>
+<tr><td><b>&#10052; 雪・氷</b></td><td>Gaea 2.2 (雪ノード10種)</td><td>World Creator</td><td>Blender Geometry Nodes</td></tr>
+<tr><td><b>&#127806; 農地・畑</b></td><td>FloraForge (研究)</td><td>CropCraft</td><td>Infinigen + カスタム</td></tr>
+<tr><td><b>&#9729; 雲・大気</b></td><td>Houdini Pyro</td><td>UE5 Volumetric Cloud</td><td>Blender 5.0 VDB (27新ノード)</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- 8 COMPARE -->
+<section id="compare">
+<h2><span class="si" style="background:rgba(245,158,11,.12);">&#9878;</span> AI 3D生成サービス比較（自然物向け）</h2>
+
+<div class="tw">
+<table>
+<thead><tr><th>ツール</th><th>自然物品質</th><th>月額</th><th>強み</th><th>弱み</th></tr></thead>
+<tbody>
+<tr><td><b style="color:var(--accent);">Rodin Gen-2</b></td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td><td>$120~</td><td>フォトリアル最高。100億パラメータ。岩・地形に最適</td><td>高価</td></tr>
+<tr><td><b>Tripo3D</b></td><td>&#9733;&#9733;&#9733;&#9733;</td><td>$12</td><td>クリーンなトポロジ。ゲーム向け。樹木・植物に適</td><td>有機物ディテール△</td></tr>
+<tr><td><b>Meshy</b></td><td>&#9733;&#9733;&#9733;</td><td>$10</td><td>高速イテレーション。安定品質。コスパNo.1</td><td>突出した特徴なし</td></tr>
+<tr><td><b>3D AI Studio</b></td><td>&#9733;&#9733;&#9733;~&#9733;&#9733;&#9733;&#9733;&#9733;</td><td>$14</td><td>Meshy/Rodin/Tripo選択可。$0.014/モデル</td><td>独自モデルなし</td></tr>
+<tr><td><b>CGDream</b></td><td>&#9733;&#9733;&#9733;&#9733;</td><td><b>無料枠大</b></td><td>月1800画像。90秒生成。テスト最適</td><td>Rodinベース</td></tr>
+<tr><td><b>Luma AI</b></td><td>&#9733;&#9733;&#9733;&#9733;</td><td>$30</td><td>自然環境キャプチャに最強。3DGS高品質</td><td>生成ではなくキャプチャ</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="alert alert-info">
+<span class="alert-icon">&#128161;</span>
+<div class="alert-body"><strong>重要: テキストto3Dツール (Meshy/Tripo等) は大規模景観には不向き</strong>
+「mountain terrain」等のプロンプトでは小スケールの地形断片しか生成されない。地形全体にはGaea/World Machine、個別アセット(岩・木)にAI 3D生成の使い分けが現実的。</div>
+</div>
+</section>
+
+<!-- 9 BLENDER -->
+<section id="blender">
+<h2><span class="si" style="background:rgba(52,211,153,.12);">&#128187;</span> Blenderワークフロー</h2>
+
+<h3>推奨パイプライン（用途別）</h3>
+
+<h4>A. 架空の自然風景を一から作る</h4>
+<div class="flow">
+<div class="flow-step"><span class="fn">1</span><span class="fl">Gaea</span><span class="fd">地形ハイトマップ<br>AI浸食</span></div>
+<div class="flow-step"><span class="fn">2</span><span class="fl">Blender Import</span><span class="fd">ハイトマップ<br>Displacement</span></div>
+<div class="flow-step"><span class="fn">3</span><span class="fl">Meshy / Rodin</span><span class="fd">岩・木等<br>個別アセット</span></div>
+<div class="flow-step"><span class="fn">4</span><span class="fl">Geo-Scatter</span><span class="fd">植生配置<br>自然物分布</span></div>
+<div class="flow-step"><span class="fn">5</span><span class="fl">GeoNodes仕上げ</span><span class="fd">雪・苔<br>プロシージャル</span></div>
+</div>
+
+<h4>B. 実在の地形を3D化する</h4>
+<div class="flow">
+<div class="flow-step"><span class="fn">1</span><span class="fl">BlenderGIS</span><span class="fd">SRTM/Mapbox<br>実地形インポート</span></div>
+<div class="flow-step"><span class="fn">2</span><span class="fl">衛星テクスチャ</span><span class="fd">Google Tiles<br>or AI生成</span></div>
+<div class="flow-step"><span class="fn">3</span><span class="fl">ドローン撮影</span><span class="fd">Nerfstudio<br>3DGS復元</span></div>
+<div class="flow-step"><span class="fn">4</span><span class="fl">SuGaR</span><span class="fd">3DGS→メッシュ<br>変換</span></div>
+<div class="flow-step"><span class="fn">5</span><span class="fl">Blender統合</span><span class="fd">GeoNodes<br>仕上げ</span></div>
+</div>
+
+<h4>C. 低予算/個人（全部無料）</h4>
+<div class="flow">
+<div class="flow-step"><span class="fn">1</span><span class="fl">Gaea Community</span><span class="fd">無料(1K上限)</span></div>
+<div class="flow-step"><span class="fn">2</span><span class="fl">A.N.T. Landscape</span><span class="fd">Blender標準</span></div>
+<div class="flow-step"><span class="fn">3</span><span class="fl">Megascans</span><span class="fd">Fab経由無料</span></div>
+<div class="flow-step"><span class="fn">4</span><span class="fl">TreeIt</span><span class="fd">無料植生</span></div>
+<div class="flow-step"><span class="fn">5</span><span class="fl">Poly Haven</span><span class="fd">CC0テクスチャ</span></div>
+</div>
+
+<h3>Blenderアドオン一覧</h3>
+<div class="tw">
+<table>
+<thead><tr><th>アドオン</th><th>価格</th><th>用途</th></tr></thead>
+<tbody>
+<tr><td><b>A.N.T. Landscape</b></td><td>無料（標準）</td><td>プロシージャル地形生成</td></tr>
+<tr><td><b>Terrain Mixer 3.1</b></td><td>有料</td><td>イメージマスク+ノードで地形。Terramel Lite搭載</td></tr>
+<tr><td><b>World Blender</b></td><td>有料</td><td>オールインワン環境（山脈・谷・エイリアン世界）</td></tr>
+<tr><td><b>Geo-Scatter</b></td><td>有料</td><td>高度な自然物スキャッター。最適化機能充実</td></tr>
+<tr><td><b>Easy Scatter</b></td><td>無料/低価格</td><td>GNベースのスキャッター</td></tr>
+<tr><td><b>Botaniq</b></td><td>$49</td><td>植生ライブラリ + GNベース配置</td></tr>
+<tr><td><b>BlenderGIS</b></td><td>無料</td><td>GISデータインポート（実地形）</td></tr>
+<tr><td><b>blosm</b></td><td>無料/有料</td><td>OSMから建物・地形</td></tr>
+<tr><td><b>Dream Textures</b></td><td>無料</td><td>Blender内Stable Diffusion。AIテクスチャ生成</td></tr>
+<tr><td><b>Auto-Terrainer V2</b></td><td>無料</td><td>自動地形生成</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- 10 RESOURCES -->
+<section id="resources">
+<h2><span class="si" style="background:rgba(96,165,250,.12);">&#128218;</span> リソース・ガイド一覧</h2>
+
+<h3>主要リポジトリ</h3>
+<div class="link-grid">
+<a class="link-card" href="https://github.com/princeton-vl/infinigen" target="_blank"><div class="li" style="background:rgba(52,211,153,.1);">&#127793;</div><div><div class="lt">Infinigen (Princeton)</div><div class="ld">Blenderネイティブ自然環境プロシージャル生成</div></div></a>
+<a class="link-card" href="https://github.com/naver/dust3r" target="_blank"><div class="li" style="background:rgba(96,165,250,.1);">&#128247;</div><div><div class="lt">DUSt3R (Naver Labs)</div><div class="ld">画像ペアから3D復元</div></div></a>
+<a class="link-card" href="https://github.com/naver/mast3r" target="_blank"><div class="li" style="background:rgba(96,165,250,.1);">&#128247;</div><div><div class="lt">MASt3R (Naver Labs)</div><div class="ld">DUSt3R後継。高精度3Dマッチング</div></div></a>
+<a class="link-card" href="https://github.com/nerfstudio-project/nerfstudio" target="_blank"><div class="li" style="background:rgba(34,211,238,.1);">&#128302;</div><div><div class="lt">Nerfstudio</div><div class="ld">NeRF/3DGS統合フレームワーク</div></div></a>
+<a class="link-card" href="https://github.com/graphdeco-inria/gaussian-splatting" target="_blank"><div class="li" style="background:rgba(34,211,238,.1);">&#128302;</div><div><div class="lt">3D Gaussian Splatting</div><div class="ld">オリジナル実装 (SIGGRAPH 2023)</div></div></a>
+<a class="link-card" href="https://github.com/apple/ml-depth-pro" target="_blank"><div class="li" style="background:rgba(167,139,250,.1);">&#128065;</div><div><div class="lt">Depth Pro (Apple)</div><div class="ld">0.3秒で深度マップ推定</div></div></a>
+<a class="link-card" href="https://github.com/DepthAnything/Depth-Anything-V2" target="_blank"><div class="li" style="background:rgba(167,139,250,.1);">&#128065;</div><div><div class="lt">Depth Anything V2</div><div class="ld">OSS最高精度の単眼深度推定</div></div></a>
+<a class="link-card" href="https://github.com/domlysz/BlenderGIS" target="_blank"><div class="li" style="background:rgba(52,211,153,.1);">&#127758;</div><div><div class="lt">BlenderGIS</div><div class="ld">GISデータ→Blender直接インポート</div></div></a>
+<a class="link-card" href="https://github.com/colmap/glomap" target="_blank"><div class="li" style="background:rgba(96,165,250,.1);">&#128247;</div><div><div class="lt">GLOMAP</div><div class="ld">COLMAP後継。10倍高速SfM</div></div></a>
+<a class="link-card" href="https://github.com/microsoft/TRELLIS" target="_blank"><div class="li" style="background:rgba(167,139,250,.1);">&#129302;</div><div><div class="lt">Trellis (Microsoft)</div><div class="ld">最高品質のText/Image-to-3D</div></div></a>
+</div>
+
+<h3>ツール公式サイト</h3>
+<div class="link-grid">
+<a class="link-card" href="https://quadspinner.com/" target="_blank"><div class="li" style="background:rgba(245,158,11,.1);">&#9968;</div><div><div class="lt">Gaea (QuadSpinner)</div><div class="ld">AI浸食+プロシージャル地形</div></div></a>
+<a class="link-card" href="https://www.world-creator.com/" target="_blank"><div class="li" style="background:rgba(245,158,11,.1);">&#9968;</div><div><div class="lt">World Creator</div><div class="ld">リアルタイムGPU地形生成</div></div></a>
+<a class="link-card" href="https://www.wysilab.com/" target="_blank"><div class="li" style="background:rgba(245,158,11,.1);">&#9968;</div><div><div class="lt">Instant Terra</div><div class="ld">超高速地形生成</div></div></a>
+<a class="link-card" href="https://www.meshy.ai/" target="_blank"><div class="li" style="background:rgba(244,114,182,.1);">&#129302;</div><div><div class="lt">Meshy</div><div class="ld">テキスト/画像→3D。$10/月</div></div></a>
+<a class="link-card" href="https://www.tripo3d.ai/" target="_blank"><div class="li" style="background:rgba(244,114,182,.1);">&#129302;</div><div><div class="lt">Tripo3D</div><div class="ld">高速Image-to-3D。$12/月</div></div></a>
+<a class="link-card" href="https://lumalabs.ai/" target="_blank"><div class="li" style="background:rgba(34,211,238,.1);">&#128302;</div><div><div class="lt">Luma AI</div><div class="ld">3DGSキャプチャ。$30/月</div></div></a>
+<a class="link-card" href="https://polyhaven.com/" target="_blank"><div class="li" style="background:rgba(52,211,153,.1);">&#127793;</div><div><div class="lt">Poly Haven</div><div class="ld">CC0テクスチャ/HDRI/3Dモデル</div></div></a>
+<a class="link-card" href="https://cgdream.ai/features/ai-terrain-3d-model-generator" target="_blank"><div class="li" style="background:rgba(244,114,182,.1);">&#129302;</div><div><div class="lt">CGDream</div><div class="ld">AI地形生成。無料枠大</div></div></a>
+</div>
+
+<h3>日本語リソース</h3>
+<div class="link-grid">
+<a class="link-card" href="https://note.com/musimarusan/n/nffee9aa685a4" target="_blank"><div class="li" style="background:rgba(245,158,11,.1);">&#128214;</div><div><div class="lt">フォトグラメトリワークフロー（ドローン）</div><div class="ld">@musimarusan - note.com</div></div></a>
+<a class="link-card" href="https://note.com/meganeojisan/n/n2c6a5572aed8" target="_blank"><div class="li" style="background:rgba(245,158,11,.1);">&#128214;</div><div><div class="lt">Blender x AIで3D自動生成</div><div class="ld">MeganeOjisan - note.com</div></div></a>
+<a class="link-card" href="https://zenn.dev/cacc_lab/articles/44ac3faa50080c" target="_blank"><div class="li" style="background:rgba(245,158,11,.1);">&#128214;</div><div><div class="lt">Blender MCPでAI駆動3Dモデリング</div><div class="ld">Zenn</div></div></a>
+</div>
+</section>
+
+</div>
+
+<footer class="footer">
+<p>Natural 3D AI Generation Research Report</p>
+<p style="margin-top:3px;opacity:.6;">Compiled 2026-04-12 | Sources: GitHub, arXiv, CGChannel, QuadSpinner, 80.lv, note.com, Zenn, etc.</p>
+</footer>
+</body>
+</html>

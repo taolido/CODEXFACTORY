@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自然物3Dモデル生成AI 総合リサーチ</title>
+<style>
+:root{--c-bg:#060a08;--c-surface:#0e1610;--c-surface2:#161e18;--c-border:#263028;--c-text:#dde8e0;--c-text-sub:#7c9080;--c-accent:#27ae60;--c-accent2:#2980b9;--c-accent3:#8e44ad;--c-accent4:#d4a843;--c-link:#74d4a8;--c-positive:#2ecc71;--c-negative:#e74c3c;--radius:12px;--shadow:0 4px 24px rgba(0,0,0,.5)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth;font-size:16px}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Noto Sans JP',sans-serif;background:var(--c-bg);color:var(--c-text);line-height:1.7;overflow-x:hidden}
+a{color:var(--c-link);text-decoration:none;transition:opacity .2s}a:hover{opacity:.8}
+.hero{position:relative;min-height:55vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4rem 2rem;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 30% 50%,rgba(39,174,96,.2),transparent),radial-gradient(ellipse 50% 40% at 70% 50%,rgba(41,128,185,.15),transparent),radial-gradient(ellipse 40% 30% at 50% 80%,rgba(142,68,173,.1),transparent);z-index:0}
+.hero>*{position:relative;z-index:1}
+.hero-badge{display:inline-block;padding:.4rem 1.2rem;border-radius:99px;background:rgba(39,174,96,.15);border:1px solid rgba(39,174,96,.4);color:var(--c-accent);font-size:.85rem;font-weight:600;margin-bottom:1.5rem}
+.hero h1{font-size:clamp(2rem,4.5vw,3.2rem);font-weight:800;background:linear-gradient(135deg,#2ecc71 0%,#fff 40%,#3498db 70%,#9b59b6 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:1rem}
+.hero p{font-size:1.05rem;color:var(--c-text-sub);max-width:640px}
+.wrapper{display:grid;grid-template-columns:250px 1fr;max-width:1400px;margin:0 auto}
+@media(max-width:900px){.wrapper{grid-template-columns:1fr}.sidebar{display:none}}
+.sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;padding:2rem 1rem 2rem 1.5rem;border-right:1px solid var(--c-border);background:var(--c-surface);scrollbar-width:thin}
+.sidebar h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--c-text-sub);margin-bottom:.8rem}
+.sidebar a{display:block;padding:.4rem .6rem;border-radius:6px;font-size:.8rem;color:var(--c-text-sub);transition:all .2s;border-left:2px solid transparent}
+.sidebar a:hover,.sidebar a.active{background:rgba(39,174,96,.1);color:var(--c-text);border-left-color:var(--c-accent)}
+main{padding:3rem 3rem 6rem;max-width:960px}@media(max-width:900px){main{padding:2rem 1.2rem 4rem}}
+section{margin-bottom:3.5rem;scroll-margin-top:2rem}
+section h2{font-size:1.5rem;font-weight:700;margin-bottom:1.2rem;padding-bottom:.5rem;border-bottom:2px solid var(--c-border);display:flex;align-items:center;gap:.6rem}
+section h2 .icon{width:26px;height:26px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+section h3{font-size:1.1rem;font-weight:600;margin:1.8rem 0 .7rem;color:#58d68d}
+section h4{font-size:.95rem;font-weight:600;margin:1rem 0 .4rem;color:#85c1e9}
+p{margin-bottom:.7rem}ul,ol{margin-left:1.2rem;margin-bottom:.8rem}li{margin-bottom:.25rem}strong{color:#fff}
+code{background:var(--c-surface2);padding:.15em .4em;border-radius:4px;font-size:.88em;font-family:'Cascadia Code','Fira Code',monospace}
+.card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:1.3rem;margin-bottom:.8rem}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.8rem;margin-bottom:1.2rem}
+.card-sm{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:1rem}
+.card-sm h4{margin:0 0 .3rem;color:var(--c-text);font-size:.9rem}.card-sm p{margin:0;font-size:.82rem;color:var(--c-text-sub)}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.6rem;margin-bottom:1.2rem}
+.stat-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:.8rem;text-align:center}.stat-card .val{font-size:1.4rem;font-weight:800;display:block}.stat-card .lbl{font-size:.72rem;color:var(--c-text-sub);margin-top:.15rem}
+table{width:100%;border-collapse:collapse;margin-bottom:1.2rem;font-size:.82rem}
+thead th{text-align:left;padding:.6rem .7rem;background:var(--c-surface2);border-bottom:2px solid var(--c-accent);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--c-text-sub);white-space:nowrap}
+td{padding:.5rem .7rem;border-bottom:1px solid var(--c-border);vertical-align:top}tbody tr:hover{background:rgba(39,174,96,.04)}
+.tag{display:inline-block;padding:.15rem .5rem;border-radius:99px;font-size:.68rem;font-weight:600}
+.tag-green{background:rgba(46,204,113,.18);color:#58d68d}.tag-blue{background:rgba(52,152,219,.15);color:#85c1e9}.tag-purple{background:rgba(142,68,173,.15);color:#bb8fce}.tag-gold{background:rgba(212,168,67,.15);color:#f0d060}.tag-red{background:rgba(231,76,60,.15);color:#ff7b6b}.tag-free{background:rgba(46,204,113,.25);color:#2ecc71;font-weight:700}
+.cmp-best{color:var(--c-positive);font-weight:700}.cmp-good{color:#85c1e9}.cmp-mid{color:var(--c-text-sub)}.cmp-bad{color:var(--c-negative)}
+.link-group{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.5rem;margin-bottom:1.2rem}
+.link-item{display:flex;align-items:center;gap:.5rem;padding:.5rem .7rem;background:var(--c-surface);border:1px solid var(--c-border);border-radius:8px;font-size:.8rem;transition:border-color .2s}.link-item:hover{border-color:var(--c-accent)}
+.link-icon{width:22px;height:22px;border-radius:4px;background:var(--c-surface2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.65rem}
+.callout{background:rgba(39,174,96,.06);border:1px solid rgba(39,174,96,.3);border-left:4px solid var(--c-accent);border-radius:8px;padding:.8rem 1rem;margin-bottom:1.2rem;font-size:.88rem}
+.scroll-top{position:fixed;bottom:2rem;right:2rem;width:42px;height:42px;border-radius:50%;background:var(--c-accent);color:#fff;border:none;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s;z-index:99;box-shadow:var(--shadow)}.scroll-top.visible{opacity:1}
+</style>
+</head>
+<body>
+<header class="hero">
+  <span class="hero-badge">AI 3D Nature Generation Research</span>
+  <h1>自然物3Dモデル生成AI<br>総合リサーチレポート</h1>
+  <p>畑・森・雪山・岩・植物・水 &mdash; 自然物3D生成が得意なAIツール・サービスを網羅調査。</p>
+</header>
+<div class="wrapper">
+<nav class="sidebar">
+  <h3>Contents</h3>
+  <a href="#summary">サマリー</a>
+  <a href="#asset-ai">1. 個別アセット生成AI</a>
+  <a href="#world-ai">2. シーン/ワールド生成AI</a>
+  <a href="#procedural">3. プロシージャル専門ツール</a>
+  <a href="#research">4. 植生AI研究</a>
+  <a href="#photogrammetry">5. フォトグラメトリ/3DGS</a>
+  <a href="#game">6. ゲームエンジン統合</a>
+  <a href="#farm">7. 畑・農地の3D生成</a>
+  <a href="#recommend">8. 用途別ベストチョイス</a>
+  <a href="#links">9. 参考リンク</a>
+</nav>
+<main>
+
+<section id="summary">
+  <h2><span class="icon" style="background:rgba(39,174,96,.2);color:#58d68d;">S</span> エグゼクティブサマリー</h2>
+  <p>2026年時点で「自然物3D」のAI生成は<strong>3つのレイヤー</strong>に分かれる:</p>
+  <div class="card-grid">
+    <div class="card-sm" style="border-color:rgba(46,204,113,.3);"><h4><span class="tag tag-green">Layer 1</span> 個別アセット生成</h4><p>Meshy/Tripo/Rodin/TRELLIS-2等でテキスト/画像から岩・木を1個ずつ生成</p></div>
+    <div class="card-sm" style="border-color:rgba(52,152,219,.3);"><h4><span class="tag tag-blue">Layer 2</span> シーン/ワールド生成</h4><p>Genie 3/World Labs/Meta WorldGen/Infinigen等で自然環境全体を生成</p></div>
+    <div class="card-sm" style="border-color:rgba(212,168,67,.3);"><h4><span class="tag tag-gold">Layer 3</span> プロシージャル専門</h4><p>SpeedTree/Gaea/World Creator/Houdini（AI非使用だが圧倒的品質）</p></div>
+  </div>
+  <div class="callout"><strong>結論:</strong> AAA品質の「畑・森・雪山」を1ツールで完結できるAIはまだない。最も近いのは<strong>Infinigen</strong>（Princeton大学/Blenderベース/無料/全自然物対応）。プロダクション品質では<strong>World Creator + SpeedTree</strong>の組み合わせ。</div>
+</section>
+
+<section id="asset-ai">
+  <h2><span class="icon" style="background:rgba(46,204,113,.2);color:#58d68d;">1</span> 個別アセット生成AI</h2>
+  <h3>自然物対応マトリクス</h3>
+  <div style="overflow-x:auto;">
+  <table>
+    <thead><tr><th>ツール</th><th>森/木</th><th>岩</th><th>雪山</th><th>畑</th><th>植物</th><th>品質</th><th>価格</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Rodin Gen-2</strong></td><td class="cmp-good">B</td><td class="cmp-best">A</td><td class="cmp-good">B</td><td class="cmp-mid">C</td><td class="cmp-mid">C</td><td>最高（4K PBR）</td><td>$20-30/月</td></tr>
+      <tr><td><strong>TRELLIS-2</strong></td><td class="cmp-good">B</td><td class="cmp-best">A</td><td class="cmp-good">B</td><td class="cmp-mid">C</td><td class="cmp-good">B</td><td>高（1536³）</td><td><span class="tag tag-free">無料OSS</span></td></tr>
+      <tr><td><strong>Meshy AI</strong></td><td class="cmp-mid">C</td><td class="cmp-good">B</td><td class="cmp-mid">C</td><td class="cmp-mid">C</td><td class="cmp-mid">C</td><td>中（有機物70-80%）</td><td>無料枠+$20/月</td></tr>
+      <tr><td><strong>Tripo AI 3.0</strong></td><td class="cmp-mid">C</td><td class="cmp-good">B</td><td class="cmp-mid">C</td><td class="cmp-mid">C</td><td class="cmp-mid">C</td><td>中〜高</td><td>無料枠+有料</td></tr>
+      <tr><td><strong>Hunyuan3D</strong></td><td class="cmp-mid">C</td><td class="cmp-good">B</td><td class="cmp-mid">C</td><td class="cmp-mid">C</td><td class="cmp-mid">C</td><td>中〜高</td><td><span class="tag tag-free">OSS</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p style="font-size:.8rem;color:var(--c-text-sub);">A=得意/高品質, B=対応可, C=基本対応/要調整</p>
+
+  <h3>注目ツール</h3>
+  <div class="card-grid">
+    <div class="card-sm" style="border-color:rgba(46,204,113,.4);">
+      <h4>TRELLIS-2 <span class="tag tag-free">無料</span></h4>
+      <p>Microsoft Research。40億パラメータ、最大1536³解像度、PBR対応。H100で3秒〜1分。.glb出力でBlender/UE5直接対応。</p>
+    </div>
+    <div class="card-sm" style="border-color:rgba(212,168,67,.3);">
+      <h4>Rodin Gen-2 <span class="tag tag-gold">最高品質</span></h4>
+      <p>Deemos社。BANG アーキテクチャ。4K PBRテクスチャ。岩・地形表現に特に強い。$20-30/月</p>
+    </div>
+    <div class="card-sm">
+      <h4>Meshy AI</h4>
+      <p>.blend直接出力可能。Free 100クレジット/月。有機物70-80%精度。プロトタイプ向き</p>
+    </div>
+    <div class="card-sm">
+      <h4>Hunyuan3D 2.1 <span class="tag tag-free">OSS</span></h4>
+      <p>Tencent。完全OSS、ローカルデプロイ可。fal.aiで$0.16/生成</p>
+    </div>
+  </div>
+</section>
+
+<section id="world-ai">
+  <h2><span class="icon" style="background:rgba(52,152,219,.2);color:#85c1e9;">2</span> シーン/ワールド生成AI</h2>
+  <div class="card-grid">
+    <div class="card-sm" style="border-color:rgba(52,152,219,.4);">
+      <h4>Google Genie 3 <span class="tag tag-blue">最先端</span></h4>
+      <p>リアルタイム24fpsのインタラクティブワールドモデル。森林/海洋/山岳/砂漠をフォトリアル生成。天候リアルタイム変更。<strong>メッシュエクスポートは非対応</strong></p>
+    </div>
+    <div class="card-sm" style="border-color:rgba(142,68,173,.3);">
+      <h4>World Labs Marble 1.1+</h4>
+      <p>Fei-Fei Li共同創業（$1B+評価）。単一画像→ナビゲート可能3D世界。Gaussian Splats出力。環境特化</p>
+    </div>
+    <div class="card-sm" style="border-color:rgba(231,76,60,.3);">
+      <h4>Meta WorldGen <span class="tag tag-red">研究段階</span></h4>
+      <p>テキスト→50×50m 3Dワールド（約5分）。<strong>Unity/UE直接出力</strong>。LLMシーンレイアウト+Diffusion 3D</p>
+    </div>
+    <div class="card-sm" style="border-color:rgba(46,204,113,.4);">
+      <h4>Infinigen <span class="tag tag-free">無料/Blender</span></h4>
+      <p>Princeton大学。<strong>完全プロシージャル自然世界ジェネレーター</strong>。植物/動物/地形/火/雲/雨/雪。Blenderベース。BSD 3-Clause</p>
+    </div>
+    <div class="card-sm">
+      <h4>Promethean AI <span class="tag tag-gold">UE5統合</span></h4>
+      <p>自然言語でアセット配置提案。PlayStation Studios等10,000+ユーザー。既存アセットの「配置」方式</p>
+    </div>
+  </div>
+</section>
+
+<section id="procedural">
+  <h2><span class="icon" style="background:rgba(212,168,67,.2);color:#f0d060;">3</span> プロシージャル専門ツール（非AI / 最高品質）</h2>
+  <h3>地形生成</h3>
+  <table>
+    <thead><tr><th>ツール</th><th>特徴</th><th>AI</th><th>価格</th><th>連携</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Gaea 2.2</strong></td><td>業界デファクト。Erosion 2で10倍高速</td><td class="cmp-bad">明確にAI不使用</td><td>Community無料</td><td>UE5,Houdini</td></tr>
+      <tr><td><strong>World Creator</strong></td><td>リアルタイムWYSIWYG。侵食/水/雪/砂</td><td class="cmp-mid">限定的</td><td>Indie $99~</td><td>UE5,Blender</td></tr>
+      <tr><td><strong>Instant Terra</strong></td><td>超高速ノードベース。数十億クワッド</td><td class="cmp-mid">なし</td><td>$149~</td><td>UE5,Houdini</td></tr>
+    </tbody>
+  </table>
+  <h3>植生・樹木</h3>
+  <table>
+    <thead><tr><th>ツール</th><th>特徴</th><th>価格</th></tr></thead>
+    <tbody>
+      <tr><td><strong>SpeedTree</strong></td><td>業界標準。7000+植物ライブラリ。風アニメ。季節バリエーション</td><td>Indie $19/月~</td></tr>
+      <tr><td><strong>Xfrog</strong></td><td>プロシージャル有機3D。7000+植物モデル</td><td>ライブラリ購入型</td></tr>
+      <tr><td><strong>Houdini</strong></td><td>究極の柔軟性。Tree tools, TOPs, PDG</td><td>Indie $269/年</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="research">
+  <h2><span class="icon" style="background:rgba(142,68,173,.2);color:#bb8fce;">4</span> 植生AI研究の最前線</h2>
+  <div class="card-grid">
+    <div class="card-sm">
+      <h4>Foliager <span class="tag tag-purple">SIGGRAPH 2025</span></h4>
+      <p><strong>LLM + 生物学データで森林生成</strong>。自然言語で生態系指定→土壌/太陽/温度シミュで月次成長。科学的に妥当な3D森林を数分で</p>
+    </div>
+    <div class="card-sm">
+      <h4>FloraForge <span class="tag tag-purple">arXiv 2025.12</span></h4>
+      <p><strong>LLM支援の農業向け3D植物</strong>。Depth ControlNet + LoRA。YAML形式で全パラメータ編集可</p>
+    </div>
+    <div class="card-sm">
+      <h4>PlantDreamer <span class="tag tag-purple">ICCV 2025</span></h4>
+      <p>拡散モデル + Gaussian Splatting。GaussianDreamerを全植物種でPSNR上回り</p>
+    </div>
+    <div class="card-sm">
+      <h4>Purdue大学 深層学習樹木</h4>
+      <p>カエデ/オーク/松の成長モデルを深層学習で生成。数GBの詳細ジオメトリ</p>
+    </div>
+    <div class="card-sm">
+      <h4>MIT Tree-D Fusion</h4>
+      <p>生成AI+条件付きアルゴリズムで北米60万本の都市樹木シミュレーション</p>
+    </div>
+  </div>
+</section>
+
+<section id="photogrammetry">
+  <h2><span class="icon" style="background:rgba(52,152,219,.2);color:#85c1e9;">5</span> フォトグラメトリ / 3DGS / NeRF</h2>
+  <h3>フォトグラメトリ</h3>
+  <div class="card-grid">
+    <div class="card-sm"><h4>Polycam</h4><p>1分で360度屋外シーン。Stable Diffusion系で欠損補完。ドローン対応。無制限スキャン</p></div>
+    <div class="card-sm"><h4>Agisoft Metashape 2.3</h4><p>AI深度マップ、AIテクスチャ強化。<strong>Natural ブレンドモード</strong>で屋外最適化。$179~</p></div>
+    <div class="card-sm"><h4>Megascans / Fab</h4><p>18,000+実世界フォトスキャン。1,500+無料パック。UE5 Nanite/Lumen対応</p></div>
+  </div>
+  <h3>3DGS vs NeRF（屋外自然シーン）</h3>
+  <table>
+    <thead><tr><th>項目</th><th>3D Gaussian Splatting</th><th>NeRF</th></tr></thead>
+    <tbody>
+      <tr><td>計算効率</td><td class="cmp-best">高い（リアルタイム可）</td><td class="cmp-mid">低い</td></tr>
+      <tr><td>植生隠蔽部分</td><td class="cmp-mid">弱い</td><td class="cmp-best">より良好</td></tr>
+      <tr><td>リアルタイム</td><td class="cmp-best">ゲーム/VR向き</td><td class="cmp-mid">映画VFX向き</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="game">
+  <h2><span class="icon" style="background:rgba(39,174,96,.2);color:#58d68d;">6</span> ゲームエンジン統合型</h2>
+  <h3>UE5向け</h3>
+  <table>
+    <thead><tr><th>ツール</th><th>特徴</th></tr></thead>
+    <tbody>
+      <tr><td><strong>RealBiomes</strong></td><td>3Dスキャン、LIDAR地形、8K、Nanite/Lumen、最大64km²、季節切替、積雪</td></tr>
+      <tr><td><strong>Promethean AI</strong></td><td>自然言語でアセット配置、UE5深く統合</td></tr>
+      <tr><td><strong>World Creator</strong></td><td>UE5ブリッジプラグイン</td></tr>
+    </tbody>
+  </table>
+  <h3>Blender向け</h3>
+  <table>
+    <thead><tr><th>ツール</th><th>特徴</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Infinigen</strong></td><td>Blenderベース自然世界ジェネレーター（無料）</td></tr>
+      <tr><td><strong>Tripo3D プラグイン</strong></td><td>Blender内からAI 3D生成</td></tr>
+      <tr><td><strong>TRELLIS-2</strong></td><td>.glb出力でBlenderに直接インポート</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="farm">
+  <h2><span class="icon" style="background:rgba(212,168,67,.2);color:#f0d060;">7</span> 畑・農地の3D生成</h2>
+  <div class="callout"><strong>現状:</strong> ゲーム/映像向けの高品質「畑」3Dモデル生成ツールは<strong>専用ツールとして未確立</strong>。学術研究（精密農業/ロボティクス）が先行。</div>
+  <h3>学術研究</h3>
+  <table>
+    <thead><tr><th>プロジェクト</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td><strong>FloraForge</strong></td><td>LLM支援の農業向け3D植物生成（YAML編集可）</td></tr>
+      <tr><td><strong>AgriField3D</strong></td><td>実圃場スキャン→プロシージャルNURBSで植物再構築</td></tr>
+      <tr><td><strong>Crops3D</strong></td><td>多様な作物種・成長段階の3D点群データセット</td></tr>
+      <tr><td><strong>LLM-Driven農業3D</strong></td><td>LLMで農業シミュ環境自動生成（2026年2月 arXiv）</td></tr>
+    </tbody>
+  </table>
+  <h3>実用的選択肢</h3>
+  <ul>
+    <li><strong>Megascans農場パック</strong>（中世農場等のスキャンアセット）</li>
+    <li><strong>AI汎用ツール</strong>（Meshy/Tripo）でテキストから畑アセット生成（農学的正確性は保証されない）</li>
+    <li><strong>ドローン+フォトグラメトリ</strong>: 実圃場を2cm精度で3D化</li>
+  </ul>
+</section>
+
+<section id="recommend">
+  <h2><span class="icon" style="background:rgba(46,204,113,.2);color:#58d68d;">8</span> 用途別ベストチョイス</h2>
+
+  <h3>個別の自然物3Dモデルを手早く作りたい</h3>
+  <table>
+    <thead><tr><th>#</th><th>ツール</th><th>理由</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><strong>Rodin Gen-2</strong></td><td>最高品質PBR（有料）</td></tr>
+      <tr><td>2</td><td><strong>TRELLIS-2</strong></td><td>無料で高品質、ローカル実行</td></tr>
+      <tr><td>3</td><td><strong>Meshy AI</strong></td><td>使いやすさと.blend直接出力</td></tr>
+    </tbody>
+  </table>
+
+  <h3>大規模自然環境を構築したい</h3>
+  <table>
+    <thead><tr><th>#</th><th>ツール</th><th>理由</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><strong>World Creator + SpeedTree</strong></td><td>プロダクション標準</td></tr>
+      <tr><td>2</td><td><strong>Infinigen</strong></td><td>完全無料・Blender統合・無限バリエーション</td></tr>
+      <tr><td>3</td><td><strong>RealBiomes</strong> (UE5限定)</td><td>AAA品質バイオーム</td></tr>
+    </tbody>
+  </table>
+
+  <h3>低予算で始めたい</h3>
+  <table>
+    <thead><tr><th>ツール</th><th>価格</th><th>特徴</th></tr></thead>
+    <tbody>
+      <tr><td><strong>TRELLIS-2</strong></td><td><span class="tag tag-free">無料</span></td><td>Microsoft OSS、高品質</td></tr>
+      <tr><td><strong>Hunyuan3D</strong></td><td><span class="tag tag-free">無料</span></td><td>Tencent OSS</td></tr>
+      <tr><td><strong>Infinigen</strong></td><td><span class="tag tag-free">無料</span></td><td>Blenderベース全自然物</td></tr>
+      <tr><td><strong>Gaea Community</strong></td><td><span class="tag tag-free">無料</span></td><td>業界標準地形（解像度制限）</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Blenderパイプラインで完結したい</h3>
+  <ol>
+    <li><strong>Infinigen</strong> で自然シーン自動生成</li>
+    <li><strong>TRELLIS-2 / Meshy</strong> で個別アセット生成 → Blenderインポート</li>
+    <li>Blender Sculpt + Geometry Nodes で仕上げ</li>
+  </ol>
+</section>
+
+<section id="links">
+  <h2><span class="icon" style="background:rgba(52,152,219,.2);color:#85c1e9;">&#128279;</span> 9. 参考リンク集</h2>
+  <h3>個別アセット生成AI</h3>
+  <div class="link-group">
+    <a href="https://www.meshy.ai/" target="_blank" class="link-item"><span class="link-icon">M</span> Meshy AI</a>
+    <a href="https://www.tripo3d.ai/" target="_blank" class="link-item"><span class="link-icon">T</span> Tripo AI</a>
+    <a href="https://hyper3d.ai/" target="_blank" class="link-item"><span class="link-icon">R</span> Rodin Gen-2</a>
+    <a href="https://github.com/microsoft/TRELLIS.2" target="_blank" class="link-item"><span class="link-icon">GH</span> TRELLIS-2</a>
+    <a href="https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1" target="_blank" class="link-item"><span class="link-icon">GH</span> Hunyuan3D 2.1</a>
+    <a href="https://www.sloyd.ai/" target="_blank" class="link-item"><span class="link-icon">S</span> Sloyd AI</a>
+    <a href="https://cgdream.ai/features/ai-terrain-3d-model-generator" target="_blank" class="link-item"><span class="link-icon">C</span> CGDream Terrain</a>
+  </div>
+  <h3>シーン/ワールド生成AI</h3>
+  <div class="link-group">
+    <a href="https://deepmind.google/models/genie/" target="_blank" class="link-item"><span class="link-icon">G</span> Google Genie 3</a>
+    <a href="https://www.worldlabs.ai/" target="_blank" class="link-item"><span class="link-icon">W</span> World Labs</a>
+    <a href="https://arxiv.org/abs/2511.16825" target="_blank" class="link-item"><span class="link-icon">M</span> Meta WorldGen</a>
+    <a href="https://github.com/princeton-vl/infinigen" target="_blank" class="link-item"><span class="link-icon">I</span> Infinigen (Princeton)</a>
+    <a href="https://www.prometheanai.com/" target="_blank" class="link-item"><span class="link-icon">P</span> Promethean AI</a>
+  </div>
+  <h3>プロシージャル専門</h3>
+  <div class="link-group">
+    <a href="https://quadspinner.com/" target="_blank" class="link-item"><span class="link-icon">G</span> Gaea</a>
+    <a href="https://www.world-creator.com/" target="_blank" class="link-item"><span class="link-icon">W</span> World Creator</a>
+    <a href="https://store.speedtree.com/" target="_blank" class="link-item"><span class="link-icon">S</span> SpeedTree</a>
+    <a href="https://www.wysilab.com/" target="_blank" class="link-item"><span class="link-icon">I</span> Instant Terra</a>
+    <a href="https://www.sidefx.com/" target="_blank" class="link-item"><span class="link-icon">H</span> Houdini</a>
+  </div>
+  <h3>フォトグラメトリ / スキャン</h3>
+  <div class="link-group">
+    <a href="https://poly.cam/" target="_blank" class="link-item"><span class="link-icon">P</span> Polycam</a>
+    <a href="https://www.agisoftmetashape.com/" target="_blank" class="link-item"><span class="link-icon">A</span> Agisoft Metashape</a>
+    <a href="https://quixel.com/" target="_blank" class="link-item"><span class="link-icon">Q</span> Megascans / Fab</a>
+    <a href="https://www.realbiomes.com/" target="_blank" class="link-item"><span class="link-icon">R</span> RealBiomes (UE5)</a>
+  </div>
+  <h3>植生AI研究</h3>
+  <div class="link-group">
+    <a href="https://dl.acm.org/doi/10.1145/3721250.3743024" target="_blank" class="link-item"><span class="link-icon">P</span> Foliager (SIGGRAPH 2025)</a>
+    <a href="https://arxiv.org/abs/2512.11925" target="_blank" class="link-item"><span class="link-icon">P</span> FloraForge</a>
+    <a href="https://arxiv.org/abs/2505.15528" target="_blank" class="link-item"><span class="link-icon">P</span> PlantDreamer (ICCV 2025)</a>
+    <a href="https://www.purdue.edu/newsroom/2024/Q1/ai-learns-to-simulate-how-trees-grow-and-shape-in-response-to-their-environments/" target="_blank" class="link-item"><span class="link-icon">P</span> Purdue AI Tree Growth</a>
+    <a href="https://news.mit.edu/2024/advancing-urban-tree-monitoring-ai-powered-digital-twins-1121" target="_blank" class="link-item"><span class="link-icon">P</span> MIT Tree-D Fusion</a>
+  </div>
+  <h3>Blender連携</h3>
+  <div class="link-group">
+    <a href="https://github.com/VAST-AI-Research/tripo-3d-for-blender" target="_blank" class="link-item"><span class="link-icon">GH</span> Tripo Blenderプラグイン</a>
+    <a href="https://infinigen.org/" target="_blank" class="link-item"><span class="link-icon">I</span> Infinigen公式</a>
+  </div>
+</section>
+
+<footer style="text-align:center;padding:2.5rem 0;color:var(--c-text-sub);font-size:.78rem;border-top:1px solid var(--c-border);">
+  AI 3D Nature Generation Research &mdash; 2026-04-12<br>
+  Sources: Meshy/Tripo/Hyper3D/Microsoft/Google/Meta/Princeton/QuadSpinner/SideFX/SpeedTree/Epic Games
+</footer>
+
+</main>
+</div>
+<button class="scroll-top" onclick="window.scrollTo({top:0})" aria-label="Top">&uarr;</button>
+<script>
+const btn=document.querySelector('.scroll-top');window.addEventListener('scroll',()=>{btn.classList.toggle('visible',window.scrollY>400)});
+const links=document.querySelectorAll('.sidebar a'),sections=document.querySelectorAll('section[id]');
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){links.forEach(l=>l.classList.remove('active'));const a=document.querySelector(`.sidebar a[href="#${x.target.id}"]`);if(a)a.classList.add('active')}})},{rootMargin:'-20% 0px -70% 0px'});
+sections.forEach(s=>obs.observe(s));
+</script>
+</body>
+</html>

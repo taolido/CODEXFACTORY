@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UE5 vs Blender 5 地形スカルプト 徹底比較</title>
+<style>
+:root{--c-bg:#08090f;--c-surface:#10121c;--c-surface2:#181a28;--c-border:#262a3d;--c-text:#dde0ea;--c-text-sub:#7c80a0;--c-ue:#0e6cf3;--c-ue-light:#3a8dff;--c-bl:#f57b1f;--c-bl-light:#ff9842;--c-accent:#9b59b6;--c-link:#74b9ff;--c-positive:#2ecc71;--c-negative:#e74c3c;--c-warning:#f1c40f;--radius:12px;--shadow:0 4px 24px rgba(0,0,0,.5)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Noto Sans JP',sans-serif;background:var(--c-bg);color:var(--c-text);line-height:1.7;overflow-x:hidden}
+a{color:var(--c-link);text-decoration:none;transition:opacity .2s}a:hover{opacity:.8}
+.hero{position:relative;min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4rem 2rem;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 25% 50%,rgba(14,108,243,.25),transparent),radial-gradient(ellipse 60% 50% at 75% 50%,rgba(245,123,31,.2),transparent),radial-gradient(ellipse 40% 30% at 50% 90%,rgba(155,89,182,.12),transparent);z-index:0}
+.hero>*{position:relative;z-index:1}
+.hero-badge{display:inline-block;padding:.4rem 1.2rem;border-radius:99px;background:rgba(155,89,182,.15);border:1px solid rgba(155,89,182,.4);color:#c39bd3;font-size:.85rem;font-weight:600;letter-spacing:.05em;margin-bottom:1.5rem}
+.hero h1{font-size:clamp(2rem,5vw,3.4rem);font-weight:800;background:linear-gradient(135deg,var(--c-ue-light) 0%,#fff 50%,var(--c-bl-light) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:1rem}
+.hero p{font-size:1.05rem;color:var(--c-text-sub);max-width:680px}
+.hero-meta{margin-top:2rem;display:flex;gap:2rem;flex-wrap:wrap;justify-content:center}
+.hero-stat{text-align:center}.hero-stat .num{display:block;font-size:1.6rem;font-weight:800}.hero-stat .label{font-size:.78rem;color:var(--c-text-sub);text-transform:uppercase;letter-spacing:.08em}
+.wrapper{display:grid;grid-template-columns:260px 1fr;max-width:1400px;margin:0 auto;gap:0}
+@media(max-width:900px){.wrapper{grid-template-columns:1fr}.sidebar{display:none}}
+.sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;padding:2rem 1rem 2rem 1.5rem;border-right:1px solid var(--c-border);background:var(--c-surface);scrollbar-width:thin;scrollbar-color:var(--c-border) transparent}
+.sidebar h3{font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;color:var(--c-text-sub);margin-bottom:1rem}
+.sidebar a{display:block;padding:.45rem .6rem;border-radius:6px;font-size:.82rem;color:var(--c-text-sub);transition:all .2s;border-left:2px solid transparent}
+.sidebar a:hover,.sidebar a.active{background:rgba(155,89,182,.1);color:var(--c-text);border-left-color:var(--c-accent)}
+main{padding:3rem 3rem 6rem;max-width:1000px}@media(max-width:900px){main{padding:2rem 1.2rem 4rem}}
+section{margin-bottom:4rem;scroll-margin-top:2rem}
+section h2{font-size:1.6rem;font-weight:700;margin-bottom:1.5rem;padding-bottom:.6rem;border-bottom:2px solid var(--c-border);display:flex;align-items:center;gap:.6rem}
+section h2 .icon{width:28px;height:28px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;font-weight:700}
+section h3{font-size:1.15rem;font-weight:600;margin:2rem 0 .8rem;color:#c39bd3}
+section h4{font-size:1rem;font-weight:600;margin:1.2rem 0 .5rem;color:var(--c-bl-light)}
+p{margin-bottom:.8rem}ul,ol{margin-left:1.2rem;margin-bottom:1rem}li{margin-bottom:.3rem}strong{color:#fff}
+code{background:var(--c-surface2);padding:.15em .4em;border-radius:4px;font-size:.9em;font-family:'Cascadia Code','Fira Code',monospace}
+pre{background:var(--c-surface2);border:1px solid var(--c-border);border-radius:var(--radius);padding:1.2rem;overflow-x:auto;margin-bottom:1rem;font-size:.85rem;line-height:1.5}pre code{background:none;padding:0}
+.card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-bottom:1.5rem}
+.card-sm{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:1.2rem}.card-sm h4{margin:0 0 .4rem;color:var(--c-text);font-size:.95rem}.card-sm p{margin:0;font-size:.85rem;color:var(--c-text-sub)}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.8rem;margin-bottom:1.5rem}
+.stat-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:1rem;text-align:center}.stat-card .val{font-size:1.6rem;font-weight:800;display:block}.stat-card .lbl{font-size:.75rem;color:var(--c-text-sub);margin-top:.2rem}
+table{width:100%;border-collapse:collapse;margin-bottom:1.5rem;font-size:.85rem}
+thead th{text-align:left;padding:.7rem .8rem;background:var(--c-surface2);border-bottom:2px solid var(--c-accent);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--c-text-sub);white-space:nowrap}
+td{padding:.55rem .8rem;border-bottom:1px solid var(--c-border);vertical-align:top}tbody tr:hover{background:rgba(155,89,182,.04)}
+.tag{display:inline-block;padding:.18rem .55rem;border-radius:99px;font-size:.7rem;font-weight:600;letter-spacing:.04em}
+.tag-ue{background:rgba(14,108,243,.2);color:#5ca0ff}
+.tag-bl{background:rgba(245,123,31,.2);color:#ffa766}
+.tag-good{background:rgba(46,204,113,.18);color:#58d68d}
+.tag-bad{background:rgba(231,76,60,.18);color:#ff7b6b}
+.tag-warn{background:rgba(241,196,15,.15);color:#f7dc6f}
+.tag-neutral{background:rgba(155,89,182,.15);color:#c39bd3}
+.vs-banner{display:grid;grid-template-columns:1fr auto 1fr;gap:1rem;align-items:center;background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.5rem}
+.vs-side{text-align:center}.vs-side h3{margin:0 0 .3rem;font-size:1.4rem;color:#fff}
+.vs-side.ue h3{color:var(--c-ue-light)}.vs-side.bl h3{color:var(--c-bl-light)}
+.vs-side p{margin:0;font-size:.8rem;color:var(--c-text-sub)}
+.vs-divider{font-size:1.5rem;font-weight:800;color:var(--c-text-sub)}
+.gap-list{counter-reset:gap}
+.gap-list li{counter-increment:gap;list-style:none;position:relative;padding:.8rem 1rem .8rem 3rem;background:var(--c-surface);border:1px solid var(--c-border);border-left:4px solid var(--c-negative);border-radius:8px;margin-bottom:.5rem;font-size:.9rem}
+.gap-list li::before{content:counter(gap);position:absolute;left:.8rem;top:50%;transform:translateY(-50%);width:1.6rem;height:1.6rem;border-radius:50%;background:var(--c-negative);color:#fff;font-weight:700;font-size:.75rem;display:flex;align-items:center;justify-content:center}
+.gap-list li.priority-high{border-left-color:#e74c3c}.gap-list li.priority-mid{border-left-color:var(--c-warning)}.gap-list li.priority-low{border-left-color:#3498db}
+.steps{counter-reset:step;list-style:none;margin-left:0}.steps li{counter-increment:step;position:relative;padding-left:2.8rem;margin-bottom:.8rem}
+.steps li::before{content:counter(step);position:absolute;left:0;top:.1rem;width:1.8rem;height:1.8rem;border-radius:50%;background:var(--c-accent);color:#fff;font-weight:700;font-size:.8rem;display:flex;align-items:center;justify-content:center}
+.tree{font-family:'Cascadia Code','Fira Code',monospace;font-size:.85rem;background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:1.5rem;line-height:1.8;margin-bottom:1.5rem;overflow-x:auto}
+.tree .root{color:var(--c-bl-light);font-weight:700}.tree .branch{color:var(--c-ue-light)}.tree .leaf{color:var(--c-text-sub)}
+.cmp-best{color:var(--c-positive);font-weight:700}.cmp-good{color:var(--c-bl-light)}.cmp-mid{color:var(--c-text-sub)}.cmp-bad{color:var(--c-negative)}
+.link-group{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.6rem;margin-bottom:1.5rem}
+.link-item{display:flex;align-items:center;gap:.6rem;padding:.6rem .8rem;background:var(--c-surface);border:1px solid var(--c-border);border-radius:8px;font-size:.82rem;transition:border-color .2s}.link-item:hover{border-color:var(--c-accent)}
+.link-icon{width:24px;height:24px;border-radius:4px;background:var(--c-surface2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.7rem}
+.scroll-top{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;border-radius:50%;background:var(--c-accent);color:#fff;border:none;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s;z-index:99;box-shadow:var(--shadow)}.scroll-top.visible{opacity:1}
+.matrix-table th{font-size:.7rem}.matrix-table td{font-size:.78rem;padding:.45rem .55rem}.matrix-table .col-ue{color:#5ca0ff;font-weight:600}.matrix-table .col-bl{color:#ffa766;font-weight:600}
+.workflow-block{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:1.2rem;margin-bottom:1rem;font-family:'Cascadia Code','Fira Code',monospace;font-size:.82rem;line-height:1.7}
+.workflow-block .arrow{color:var(--c-bl-light);text-align:center;display:block}
+.callout{background:rgba(241,196,15,.06);border:1px solid rgba(241,196,15,.3);border-left:4px solid var(--c-warning);border-radius:8px;padding:1rem 1.2rem;margin-bottom:1.5rem;font-size:.9rem}
+.callout strong{color:var(--c-warning)}
+.kbd{display:inline-block;padding:.1rem .4rem;background:var(--c-surface2);border:1px solid var(--c-border);border-radius:4px;font-family:'Cascadia Code',monospace;font-size:.78rem;color:#fff}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="hero-badge">3D Terrain Sculpting Comparison</span>
+  <h1>UE5 vs Blender 5<br>地形スカルプト徹底比較</h1>
+  <p>UE5 Landscapeの「手触り」をBlender 5でどこまで再現できるか。<br>機能・操作感・パフォーマンス・ワークフローの差を網羅。</p>
+  <div class="hero-meta">
+    <div class="hero-stat"><span class="num" style="color:var(--c-ue-light);">UE5</span><span class="label">Landscape</span></div>
+    <div class="hero-stat"><span class="num" style="color:var(--c-bl-light);">Blender 5</span><span class="label">Sculpt</span></div>
+    <div class="hero-stat"><span class="num" style="color:var(--c-negative);">10</span><span class="label">主要ギャップ</span></div>
+    <div class="hero-stat"><span class="num" style="color:var(--c-positive);">50-70%</span><span class="label">アドオン補完率</span></div>
+  </div>
+</header>
+
+<div class="wrapper">
+
+<nav class="sidebar">
+  <h3>Contents</h3>
+  <a href="#summary">エグゼクティブサマリー</a>
+  <a href="#ue5">1. UE5 Landscape全体像</a>
+  <a href="#ue5-brushes">2. UE5主要ブラシ</a>
+  <a href="#ue5-layers">3. UE5 Edit Layers ★</a>
+  <a href="#ue5-plugins">4. Landmass / Water / PCG</a>
+  <a href="#blender">5. Blender 5 標準スカルプト</a>
+  <a href="#blender-perf">6. Blender 5 性能改善</a>
+  <a href="#blender-addons">7. Blender 地形アドオン</a>
+  <a href="#erosion">8. 浸食シミュレーション</a>
+  <a href="#matrix">9. 機能マトリクス</a>
+  <a href="#feel">10. 操作感の差</a>
+  <a href="#stack">11. Blender再現スタック</a>
+  <a href="#external">12. 代替DCC外ツール</a>
+  <a href="#gaps">13. 不足機能リスト ★</a>
+  <a href="#conclusion">14. 結論</a>
+  <a href="#links">15. 参考リンク集</a>
+</nav>
+
+<main>
+
+<section id="summary">
+  <h2><span class="icon" style="background:rgba(155,89,182,.2);color:#c39bd3;">S</span> エグゼクティブサマリー</h2>
+  <div class="vs-banner">
+    <div class="vs-side ue"><h3>UE5 Landscape</h3><p>統合UI / Edit Layers / リアルタイム / 大規模対応</p></div>
+    <div class="vs-divider">VS</div>
+    <div class="vs-side bl"><h3>Blender 5</h3><p>汎用DCC / Vulkan高速化 / アドオン依存 / オフライン</p></div>
+  </div>
+  <p>Blender 5（および4.5 LTS）はVulkan化と大規模リファクタにより、汎用スカルプトの「手触り」では<strong>ZBrushに肉薄するレベル</strong>まで進化した。しかし「<strong>ゲーム前提の大規模地形制作</strong>」では、UE5 Landscapeシステムに対して<strong>機能・パフォーマンス・ワークフロー全ての面で体系的な差</strong>が残る。</p>
+  <p>業界の実運用では「Blenderで個別アセット作り込み → UE5で最終配置・ランタイム」という補完的パイプラインがデファクト。Blenderは<strong>地形そのものの主役ではなく、アセット工房</strong>として位置付けられている。</p>
+  <div class="callout"><strong>結論を先に:</strong> Blender 5に最も足りていないのは <span class="tag tag-bad">Landscape Edit Layers相当の非破壊レイヤー編集機構</span>。これがあるかないかで「彫りながら戻れる安心感」がまったく違う。Sculpting Layers（issue #132533）が公式実装されれば最大の欠損が解消される。</div>
+</section>
+
+<section id="ue5">
+  <h2><span class="icon" style="background:rgba(14,108,243,.2);color:#5ca0ff;">U</span> 1. UE5 Landscape 全体像</h2>
+  <h3>3つのモード</h3>
+  <table>
+    <thead><tr><th>モード</th><th>役割</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Manage</strong></td><td>新規作成・分割・コンポーネント追加・スプライン編集・Edit Layers管理</td></tr>
+      <tr><td><strong>Sculpt</strong></td><td>ハイトマップをブラシで盛り上げ/削る</td></tr>
+      <tr><td><strong>Paint</strong></td><td>マテリアルレイヤーを頂点ペイント</td></tr>
+    </tbody>
+  </table>
+  <h3>内部構造</h3>
+  <ul>
+    <li>規則的な四角グリッドの頂点群 = <strong>ハイトフィールド</strong></li>
+    <li>各頂点はZ（高さ）値のみを保持</li>
+    <li><span class="tag tag-bad">原理的制約</span> オーバーハング・洞窟は作れない（5.8 Mesh Terrainで解消予定）</li>
+    <li>推奨サイズ: 127/255/505/1009/2017/4033/8129のいずれか</li>
+  </ul>
+</section>
+
+<section id="ue5-brushes">
+  <h2><span class="icon" style="background:rgba(14,108,243,.2);color:#5ca0ff;">B</span> 2. UE5 主要ブラシ</h2>
+  <h3>基本ブラシ</h3>
+  <table>
+    <thead><tr><th>ブラシ</th><th>機能</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Sculpt</strong></td><td>左クリック=盛り上げ、Shift+左クリック=削り</td></tr>
+      <tr><td><strong>Smooth</strong></td><td>凹凸を近傍と平均化</td></tr>
+      <tr><td><strong>Flatten</strong></td><td>最初にクリックした高さに揃える（Raise/Lower/Both）</td></tr>
+      <tr><td><strong>Noise</strong></td><td>パーリンノイズ風の凹凸</td></tr>
+    </tbody>
+  </table>
+  <h3>シミュレーション系</h3>
+  <table>
+    <thead><tr><th>ブラシ</th><th>機能</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Erosion</strong></td><td>風化による浸食シミュレーション</td></tr>
+      <tr><td><strong>Hydro-Erosion</strong></td><td>水侵食の物理シミュレーション（rain → dissolve → flow → evaporation）</td></tr>
+    </tbody>
+  </table>
+  <h3>形状系</h3>
+  <table>
+    <thead><tr><th>ブラシ</th><th>機能</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Ramp</strong></td><td>2点クリックで精密な坂道作成</td></tr>
+      <tr><td><strong>Visibility</strong></td><td>Landscape Hole Materialで穴抜け</td></tr>
+      <tr><td><strong>Retopologize</strong></td><td>急斜面の頂点XYオフセット再配置</td></tr>
+      <tr><td><strong>Mirror</strong></td><td>中心軸対称コピー</td></tr>
+    </tbody>
+  </table>
+  <h3>ブラシ形状</h3>
+  <div class="card-grid">
+    <div class="card-sm"><h4>Circle Brush</h4><p>Smooth/Linear/Spherical/Tipの4種フォールオフ</p></div>
+    <div class="card-sm"><h4>Alpha Brush</h4><p>グレースケール画像をストロークに転写</p></div>
+    <div class="card-sm"><h4>Pattern Brush</h4><p>テクスチャをタイル状に敷き詰め</p></div>
+    <div class="card-sm"><h4>Component Brush</h4><p>コンポーネント単位操作</p></div>
+  </div>
+  <h3>Photoshop互換ホットキー（手触りの要）</h3>
+  <table>
+    <thead><tr><th>キー</th><th>機能</th></tr></thead>
+    <tbody>
+      <tr><td><span class="kbd">[</span> <span class="kbd">]</span></td><td>ブラシサイズ</td></tr>
+      <tr><td><span class="kbd">Ctrl+[</span> <span class="kbd">Ctrl+]</span></td><td>強度</td></tr>
+      <tr><td><span class="kbd">Ctrl+Shift+[</span> <span class="kbd">Ctrl+Shift+]</span></td><td>減衰</td></tr>
+    </tbody>
+  </table>
+  <p>ビューポートを見たままピッチ調整できる設計が「手触り」の核。</p>
+</section>
+
+<section id="ue5-layers">
+  <h2><span class="icon" style="background:rgba(231,76,60,.2);color:#ff7b6b;">L</span> 3. Edit Layers ★最重要機能</h2>
+  <p>これがUE4後期〜UE5の地形ワークフローを一変させた。</p>
+  <ul>
+    <li>Photoshopのレイヤーのようなスタック構造</li>
+    <li>各レイヤーが<strong>ハイトマップ + ペイントテクスチャ</strong>を独立保持</li>
+    <li>可視性ON/OFF、透明度、ブレンドモード、ロック、並べ替え、削除、複製</li>
+    <li>下のレイヤー変更は上のレイヤーに<strong>自動波及</strong></li>
+    <li><strong>Splines専用レイヤー</strong>: スプライン編集が独立レイヤーで自動更新</li>
+    <li><span class="tag tag-warn">注意</span> 作成時にしか有効化できない（後付け不可）</li>
+  </ul>
+  <h3>典型的レイヤー構成</h3>
+  <div class="workflow-block">
+<span style="color:var(--c-text-sub);">┌─────────────────────────────────────┐</span>
+Layer 5: 最後の手修正（細部のつなぎ目）
+Layer 4: Water Bodyによる自動掘り込み
+Layer 3: Splinesレイヤー（道路・川）
+Layer 2: Erosion + Hydro-Erosion仕上げ
+Layer 1: 手Sculptした山脈ブロックアウト
+Layer 0: ベースノイズ（ハイトマップインポート）
+<span style="color:var(--c-text-sub);">└─────────────────────────────────────┘</span>
+  </div>
+  <div class="callout"><strong>失敗許容のパワー:</strong> 「川のルートを変えたい」と言われても、Layer 3のスプラインを引き直すだけで他のすべてが自動追従する。AAAで「後から直せる安心感」はこの仕組みから生まれている。</div>
+</section>
+
+<section id="ue5-plugins">
+  <h2><span class="icon" style="background:rgba(14,108,243,.2);color:#5ca0ff;">+</span> 4. Landmass / Water / PCG</h2>
+  <h3>Landmassプラグイン</h3>
+  <p><strong>Blueprint Brush</strong>をレイヤースタックに差し込む方式。</p>
+  <table>
+    <thead><tr><th>ブラシ</th><th>用途</th></tr></thead>
+    <tbody>
+      <tr><td><code>CustomBrush_Landmass</code></td><td>スプラインで山塊/盆地/島生成、Erosion/CurlNoise/Displacement内蔵</td></tr>
+      <tr><td><code>CustomBrush_LandmassRiver</code></td><td>スタティックメッシュをスプラインに沿って地形変形</td></tr>
+      <tr><td><code>CustomBrush_MaterialOnly</code></td><td>マテリアル手続きノイズ</td></tr>
+    </tbody>
+  </table>
+  <h3>Water System</h3>
+  <ul>
+    <li>Lakes/Rivers/Oceansの3種Water Body Actor</li>
+    <li>スプラインで領域定義 → <strong>自動的にLandscapeに溝を掘る</strong></li>
+    <li>UE 5.6の<strong>Water Tool</strong>で大幅刷新、自動レイヤー挿入</li>
+    <li>Buoyancy（浮力）コンポーネントで船・キャラに自動適用</li>
+  </ul>
+  <h3>PCG (Procedural Content Generation)</h3>
+  <ul>
+    <li>5.7で<span class="tag tag-good">Production Ready</span></li>
+    <li>Landscape高さ・法線・ペイントレイヤー情報を入力に「生態系ルール」を定義</li>
+    <li><strong>ランタイム実行可能</strong>（プレイヤー近傍で動的生成）</li>
+    <li>Electric Dreamsサンプル（4km × 4km ジャングル）が公式デモ</li>
+  </ul>
+  <h3>UE 5.5 / 5.6 / 5.8 ロードマップ</h3>
+  <table>
+    <thead><tr><th>バージョン</th><th>主な追加</th></tr></thead>
+    <tbody>
+      <tr><td><strong>UE 5.5</strong></td><td>Edit Layers安定化、World Partition統合強化</td></tr>
+      <tr><td><strong>UE 5.6</strong></td><td>Water Tool刷新、自動レイヤー挿入</td></tr>
+      <tr><td><strong>UE 5.8</strong></td><td><span class="tag tag-good">Mesh Terrain</span> 次世代3D地形、オーバーハング/洞窟ネイティブ対応</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="blender">
+  <h2><span class="icon" style="background:rgba(245,123,31,.2);color:#ffa766;">B</span> 5. Blender 5 標準スカルプト</h2>
+  <h3>主要ブラシ</h3>
+  <table>
+    <thead><tr><th>カテゴリ</th><th>ブラシ</th></tr></thead>
+    <tbody>
+      <tr><td>基本</td><td>Draw, Draw Sharp</td></tr>
+      <tr><td>粘土系</td><td>Clay, Clay Strips, Clay Thumb</td></tr>
+      <tr><td>エッジ</td><td>Crease</td></tr>
+      <tr><td>集約/拡散</td><td>Pinch, Magnify</td></tr>
+      <tr><td>膨張</td><td>Inflate, Blob</td></tr>
+      <tr><td>平滑/平坦</td><td>Smooth, Flatten, Fill, Scrape, Multi-plane Scrape</td></tr>
+      <tr><td>大規模変形</td><td>Grab, Snake Hook, Thumb, Nudge, Rotate, Elastic Deform</td></tr>
+      <tr><td>物理</td><td>Cloth, Pose, Boundary, Simulation</td></tr>
+      <tr><td>カラー</td><td>Paint, Smear, Blur (5.1新)</td></tr>
+      <tr><td>ジェスチャー</td><td>Trim, Project, Line, Box, Lasso</td></tr>
+    </tbody>
+  </table>
+  <h3>トポロジー管理</h3>
+  <div class="card-grid">
+    <div class="card-sm">
+      <h4>Dynamic Topology (Dyntopo)</h4>
+      <p>スカルプト中にメッシュをリアルタイム再分割。Blender 5で大幅リファクタ（属性サポート、境界処理改善、Topology Rake）</p>
+    </div>
+    <div class="card-sm">
+      <h4>Voxel Remesh</h4>
+      <p>ボクセルベース均一リメッシュ。Interactive Voxel Size（Rキー）でビューポート調整</p>
+    </div>
+    <div class="card-sm">
+      <h4>Multiresolution</h4>
+      <p>最大12サブディビレベル（6700万ポリゴン超）。Blender 5で<strong>Conform Base</strong>追加</p>
+    </div>
+  </div>
+</section>
+
+<section id="blender-perf">
+  <h2><span class="icon" style="background:rgba(245,123,31,.2);color:#ffa766;">P</span> 6. Blender 5 性能改善（数値実績）</h2>
+  <div class="stat-row">
+    <div class="stat-card"><span class="val" style="color:var(--c-positive);">5x+</span><span class="lbl">モード突入高速化</span></div>
+    <div class="stat-card"><span class="val" style="color:var(--c-positive);">8x</span><span class="lbl">ブラシ評価</span></div>
+    <div class="stat-card"><span class="val" style="color:var(--c-positive);">30%</span><span class="lbl">メモリ削減</span></div>
+    <div class="stat-card"><span class="val" style="color:var(--c-positive);">2x</span><span class="lbl">GPUメモリ削減</span></div>
+  </div>
+  <table>
+    <thead><tr><th>項目</th><th>改善内容</th></tr></thead>
+    <tbody>
+      <tr><td>スカルプトモード突入</td><td>16M面で<strong>11秒 → 1.9秒</strong>（Ryzen 7950x）</td></tr>
+      <tr><td>BVH</td><td>トライアングル→フェイス格納で<strong>2.3倍</strong>向上</td></tr>
+      <tr><td>マルチレゾブラシ</td><td>struct-of-arraysで<strong>32%</strong>改善</td></tr>
+      <tr><td>境界・一時データ計算</td><td>マルチスレッドで<strong>約5倍</strong></td></tr>
+      <tr><td><strong>Vulkan バックエンド</strong></td><td>2000万ポリゴンのスムーズスカルプト実現</td></tr>
+    </tbody>
+  </table>
+  <h3>Blender 5.1 の追加機能</h3>
+  <ul>
+    <li><strong>Blur ブラシ</strong>（カラー専用）</li>
+    <li><strong>Temporary Mask toggle</strong>: <span class="kbd">Alt+LMB</span>でマスク一時切替</li>
+    <li>Sculpt Curvesに Lasso/Box/Circle 選択追加</li>
+    <li><strong>Winter of Quality 2026</strong>: 350件超のバグ修正</li>
+  </ul>
+  <h3>ブラシアセットシステム（4.3+）</h3>
+  <ul>
+    <li><strong>Asset Shelf</strong>: 3D Viewport下部に横表示</li>
+    <li><strong>Essentials ライブラリ</strong>: 130デフォルトブラシ</li>
+    <li><span class="kbd">Shift+Space</span>でポップアップ選択</li>
+  </ul>
+</section>
+
+<section id="blender-addons">
+  <h2><span class="icon" style="background:rgba(245,123,31,.2);color:#ffa766;">+</span> 7. Blender 地形作成専用ツール</h2>
+  <div class="card-grid">
+    <div class="card-sm">
+      <h4>A.N.T. Landscape <span class="tag tag-good">公式</span></h4>
+      <p>旧バンドル、現在はExtensions。Shift+A → Mesh → Landscape。ノイズタイプ豊富、内蔵Erosionパネル</p>
+    </div>
+    <div class="card-sm" style="border-color:rgba(46,204,113,.3);">
+      <h4>True-Terrain 5 <span class="tag tag-good">★最有力商用</span></h4>
+      <p>True-VFX、2024年12月リリース。<strong>レイヤーベース地形システム</strong>。リアル浸食、動的水システム、220+スキャッタアセット</p>
+    </div>
+    <div class="card-sm" style="border-color:rgba(155,89,182,.3);">
+      <h4>blackears Terrain Sculpt <span class="tag tag-neutral">無料/OSS</span></h4>
+      <p>Blender 5.0対応。<strong>Level/Ramp/Slope専用ブラシ</strong>。Blender標準の地形ブラシ不足を補完</p>
+    </div>
+    <div class="card-sm">
+      <h4>Terrain Mixer <span class="tag tag-good">無料</span></h4>
+      <p>Boonar Studio。9つの高さ入力をMulti-Input Mixing。15種16Kハイトマップ同梱、Erosion Mixer</p>
+    </div>
+    <div class="card-sm">
+      <h4>Easy Terrain Generator v2.1+</h4>
+      <p>完全Geometry Nodesベース。12+地形タイプ。<strong>ハイドロリック浸食シミュ</strong>（アニメ再生で過程観察可）</p>
+    </div>
+    <div class="card-sm">
+      <h4>Terrain Nodes</h4>
+      <p><strong>NVIDIA CUDA GPUベース</strong>。Hydraulic+Thermal+Sediment浸食。GTX 1070で4096×4096を3-4秒</p>
+    </div>
+    <div class="card-sm">
+      <h4>Procedural Terrain 2.0 <span class="tag tag-warn">$15</span></h4>
+      <p>Studio156。Geometry Nodes+Shader Nodes。<strong>ビルトインLODシステム</strong>（最大6レベル）</p>
+    </div>
+    <div class="card-sm">
+      <h4>BlenderGIS <span class="tag tag-good">無料</span></h4>
+      <p>Shapefile/GeoTIFF/OSM対応。<strong>NASA SRTMの実標高データ取得</strong>、3DビューでWebマップ表示</p>
+    </div>
+    <div class="card-sm">
+      <h4>Sculpt Layers アドオン</h4>
+      <p>非破壊スカルプトワークフロー。レイヤー追加/非表示/ロック/結合/分離。Multires併用可。<strong>公式実装はissue #132533で進行中</strong></p>
+    </div>
+  </div>
+</section>
+
+<section id="erosion">
+  <h2><span class="icon" style="background:rgba(52,152,219,.2);color:#85c1e9;">~</span> 8. 浸食シミュレーション比較</h2>
+  <table>
+    <thead><tr><th>ツール</th><th>価格</th><th>浸食タイプ</th><th>実装</th></tr></thead>
+    <tbody>
+      <tr><td><strong>UE5 Hydro-Erosion</strong></td><td><span class="tag tag-good">UE5標準</span></td><td>水（rain/dissolve/flow/evaporation）</td><td>ブラシ内蔵</td></tr>
+      <tr><td><strong>ErosionR</strong></td><td>無料 OSS</td><td>河川</td><td>A.N.T.Landscape併用</td></tr>
+      <tr><td><strong>Hydra</strong></td><td>無料 OSS/MIT</td><td>水（粒子+パイプ）/熱/雪</td><td>ModernGL 5.10+</td></tr>
+      <tr><td>Erosion Add-on</td><td>有料</td><td>水流ベース</td><td>カスタムメッシュ</td></tr>
+      <tr><td>Terrain Nodes</td><td>有料</td><td>Hydraulic+Thermal+Sediment</td><td>NVIDIA CUDA</td></tr>
+      <tr><td>Easy Terrain Gen v2</td><td>有料/無料版</td><td>Hydraulic</td><td>Geometry Nodes</td></tr>
+      <tr><td>Terrain Mixer</td><td>無料</td><td>Erosion Mixer（ブレンド）</td><td>Geometry Nodes</td></tr>
+      <tr><td>True-Terrain 5</td><td>有料</td><td>リアル浸食</td><td>独自</td></tr>
+      <tr><td><strong>Gaea (DCC外)</strong></td><td><span class="tag tag-warn">業界標準</span></td><td>GPU加速、river/erosion/sedimentation/thermal</td><td>ノードベース</td></tr>
+    </tbody>
+  </table>
+  <div class="callout"><strong>結論:</strong> 品質ではGaea / World Creator / Houdini Heightfield に依然及ばず、Blender Artistsでも「Blenderには本物の侵食システムが無い」という声が定番。</div>
+</section>
+
+<section id="matrix">
+  <h2><span class="icon" style="background:rgba(155,89,182,.2);color:#c39bd3;">M</span> 9. 機能マトリクス</h2>
+  <div style="overflow-x:auto;">
+  <table class="matrix-table">
+    <thead><tr><th>機能</th><th class="col-ue">UE5</th><th class="col-bl">Blender 5 標準</th><th>Blenderアドオン</th></tr></thead>
+    <tbody>
+      <tr><td>地形専用ブラシ</td><td class="cmp-best">◎ Sculpt/Smooth/Flatten/Ramp/Erosion/Hydro</td><td class="cmp-mid">△ 汎用のみ</td><td class="cmp-good">○ blackears Terrain Sculpt</td></tr>
+      <tr style="background:rgba(231,76,60,.05);"><td><strong>非破壊レイヤー</strong></td><td class="cmp-best">◎ Edit Layers</td><td class="cmp-bad">× 無し</td><td class="cmp-mid">△ True-Terrain 5</td></tr>
+      <tr><td>Erosion シミュ</td><td class="cmp-good">○ ブラシ内蔵</td><td class="cmp-bad">× 無し</td><td class="cmp-mid">△ Hydra/ErosionR</td></tr>
+      <tr><td>Hydro-Erosion</td><td class="cmp-best">◎ Hydro-Erosion</td><td class="cmp-bad">×</td><td class="cmp-mid">△ Hydra</td></tr>
+      <tr><td>Landmass相当</td><td class="cmp-best">◎ Blueprint Brush</td><td class="cmp-bad">×</td><td class="cmp-mid">△ True-Terrain 5</td></tr>
+      <tr><td>Water System</td><td class="cmp-best">◎ 統合自動掘削</td><td class="cmp-bad">× Ocean Modifier (波のみ)</td><td class="cmp-mid">△ Physical Open Waters</td></tr>
+      <tr style="background:rgba(231,76,60,.05);"><td><strong>PCGスキャッター</strong></td><td class="cmp-best">◎ ランタイム実行</td><td class="cmp-mid">△ Geo Nodes (オフライン)</td><td>-</td></tr>
+      <tr style="background:rgba(231,76,60,.05);"><td><strong>タイル化/ストリーミング</strong></td><td class="cmp-best">◎ World Partition</td><td class="cmp-bad">×</td><td class="cmp-mid">△ Procedural Terrain 2.0</td></tr>
+      <tr><td><strong>チーム同時編集</strong></td><td class="cmp-best">◎ OFPA</td><td class="cmp-bad">× バイナリ単一</td><td>-</td></tr>
+      <tr><td>ハイトマップI/O</td><td class="cmp-best">◎ 16bit PNG/RAW</td><td class="cmp-good">○ Displace Modifier</td><td>-</td></tr>
+      <tr><td>Auto Material</td><td class="cmp-best">◎ 5層斜度判定</td><td class="cmp-bad">×</td><td class="cmp-good">○ True-Terrain 5</td></tr>
+      <tr><td><strong>Stamp非破壊</strong></td><td class="cmp-best">◎ Blueprint Brush</td><td class="cmp-bad">× 焼き込み</td><td>-</td></tr>
+      <tr><td>Photoshopホットキー</td><td class="cmp-best">◎ <span class="kbd">[</span>/<span class="kbd">]</span></td><td class="cmp-mid">△ ブラシ毎</td><td class="cmp-good">○ blackears</td></tr>
+      <tr><td><strong>リアルタイムフルルック</strong></td><td class="cmp-best">◎ Lumen/Nanite</td><td class="cmp-bad">× Sculptモード簡易</td><td>-</td></tr>
+      <tr><td>大規模メッシュ</td><td class="cmp-best">◎ コンポーネント分割</td><td class="cmp-good">○ Vulkanで20M実用</td><td>-</td></tr>
+      <tr style="background:rgba(46,204,113,.05);"><td>実世界データ取込</td><td class="cmp-mid">△ プラグイン</td><td>-</td><td class="cmp-best">◎ BlenderGIS/Blosm</td></tr>
+      <tr style="background:rgba(46,204,113,.05);"><td>汎用モデリング/UV</td><td class="cmp-mid">△ Modeling Mode</td><td class="cmp-best">◎ 強力</td><td class="cmp-best">◎</td></tr>
+      <tr style="background:rgba(46,204,113,.05);"><td>ベイク (Hi→Low)</td><td class="cmp-mid">△</td><td class="cmp-best">◎ Multires Bake</td><td class="cmp-best">◎</td></tr>
+      <tr style="background:rgba(46,204,113,.05);"><td>キャラスカルプト</td><td class="cmp-bad">×</td><td class="cmp-best">◎ Vulkan で ZBrush代替級</td><td class="cmp-best">◎</td></tr>
+      <tr style="background:rgba(46,204,113,.05);"><td>オフラインレンダ品質</td><td class="cmp-mid">△ Path Tracer</td><td class="cmp-best">◎ Cycles</td><td class="cmp-best">◎</td></tr>
+      <tr><td>価格</td><td class="cmp-mid">$0 + 5%ロイヤリティ</td><td class="cmp-best"><strong>完全無償GPL</strong></td><td>無料〜有料</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="feel">
+  <h2><span class="icon" style="background:rgba(155,89,182,.2);color:#c39bd3;">F</span> 10. 操作感の差</h2>
+  <h3>ブラシのレスポンシブネス</h3>
+  <div class="card-grid">
+    <div class="card-sm" style="border-left:4px solid var(--c-ue-light);">
+      <h4 style="color:var(--c-ue-light);">UE5</h4>
+      <p>ハイトマップテクスチャ書き換え方式（GPUシェーダー）→ <strong>数十平方km規模でも安定</strong></p>
+    </div>
+    <div class="card-sm" style="border-left:4px solid var(--c-bl-light);">
+      <h4 style="color:var(--c-bl-light);">Blender</h4>
+      <p>メッシュ頂点直接編集 → 解像度に対して線形に重くなる。Vulkan化で「ZBrush近い手触り」評価あり（キャラ規模）</p>
+    </div>
+  </div>
+  <h3>リアルタイムプレビュー</h3>
+  <div class="card-grid">
+    <div class="card-sm" style="border-left:4px solid var(--c-ue-light);">
+      <h4 style="color:var(--c-ue-light);">UE5</h4>
+      <p>Lumen/Nanite/Virtual Shadow Mapを含む<strong>最終ルックそのままで彫れる</strong></p>
+    </div>
+    <div class="card-sm" style="border-left:4px solid var(--c-bl-light);">
+      <h4 style="color:var(--c-bl-light);">Blender</h4>
+      <p>SculptモードはWorkbench相当、EEVEE Nextルックは別モード切替必要</p>
+    </div>
+  </div>
+  <h3>大規模メッシュ</h3>
+  <div class="card-grid">
+    <div class="card-sm" style="border-left:4px solid var(--c-ue-light);">
+      <h4 style="color:var(--c-ue-light);">UE5</h4>
+      <p>Landscapeコンポーネントが<strong>最初からタイル化</strong>、編集タイルだけGPU再計算</p>
+    </div>
+    <div class="card-sm" style="border-left:4px solid var(--c-bl-light);">
+      <h4 style="color:var(--c-bl-light);">Blender</h4>
+      <p>1枚のMeshで扱う前提、巨大はチャンク分割必須（自前管理）</p>
+    </div>
+  </div>
+</section>
+
+<section id="stack">
+  <h2><span class="icon" style="background:rgba(245,123,31,.2);color:#ffa766;">S</span> 11. Blenderで「ある程度」UE5地形を再現するスタック</h2>
+  <h3>推奨レイヤー構成</h3>
+  <table>
+    <thead><tr><th>役割</th><th>推奨ツール</th></tr></thead>
+    <tbody>
+      <tr><td>ベース地形生成</td><td><strong>True-TERRAIN 5</strong> / A.N.T. Landscape / Procedural Terrain 2.0 / Terrain Mixer</td></tr>
+      <tr><td>侵食</td><td><strong>Hydra</strong> / ErosionR / Easy Terrain Generator v2</td></tr>
+      <tr><td>地形ブラシ補助</td><td><strong>blackears/blenderTerrainSculpt</strong>（Level/Ramp/Slope）</td></tr>
+      <tr><td>非破壊レイヤー風</td><td>True-TERRAIN 5純正レイヤー / Sculpt Layers / Multires+Shape Key</td></tr>
+      <tr><td>ペイントレイヤー</td><td>True-TERRAIN 5マテリアル / Vertex Color + Geo Nodes手組み</td></tr>
+      <tr><td>水</td><td>True-TERRAIN 5 / Physical Open Waters / Ocean Modifier</td></tr>
+      <tr><td>実世界データ</td><td>BlenderGIS / Blosm（NASA SRTM標高）</td></tr>
+    </tbody>
+  </table>
+  <div class="callout"><strong>総評:</strong> UE5の<strong>50-70%程度</strong>は再現可能。ただしUI統一感、チーム編集、ランタイムプレビュー、大規模ストリーミング、Edit Layersの完全非破壊性は依然埋められない。</div>
+</section>
+
+<section id="external">
+  <h2><span class="icon" style="background:rgba(52,152,219,.2);color:#85c1e9;">D</span> 12. 代替DCC外専用ツール</h2>
+  <div class="card-grid">
+    <div class="card-sm" style="border-color:rgba(46,204,113,.3);">
+      <h4>Gaea (QuadSpinner) <span class="tag tag-good">業界標準</span></h4>
+      <p>GPU加速の侵食/堆積シミュ、ノードベース。UE5/Unity/Houdiniに直接出力。3.xでBlender/Mayaプラグイン予定</p>
+    </div>
+    <div class="card-sm">
+      <h4>World Creator</h4>
+      <p>リアルタイムWYSIWYG。ブラシ感覚で操作。Blender連携公式</p>
+    </div>
+    <div class="card-sm">
+      <h4>World Machine</h4>
+      <p>老舗、ノードベース、AAA実績多数</p>
+    </div>
+    <div class="card-sm">
+      <h4>Houdini Heightfield</h4>
+      <p>究極の柔軟性。サイエンティフィックシミュ + 完全プロシージャル + USD統合。学習コスト極高</p>
+    </div>
+    <div class="card-sm">
+      <h4>Instant Terra</h4>
+      <p>GPUベース、リアルタイム編集</p>
+    </div>
+    <div class="card-sm">
+      <h4>GeoGen (JangaFX)</h4>
+      <p>新興、JangaFXの地形ツール</p>
+    </div>
+  </div>
+  <h3>典型的AAAパイプライン</h3>
+  <div class="workflow-block">
+<span style="color:var(--c-bl-light);">Gaeaでベース地形+侵食</span>
+       ↓ Heightmap
+<span style="color:var(--c-ue-light);">UE5 LandscapeへImport</span>
+       ↓
+<span style="color:var(--c-ue-light);">UE5 Landmass/Water/PCGで最終調整</span>
+       ↓
+<span style="color:var(--c-bl-light);">Blenderで個別岩・建物アセット制作</span>
+       ↓
+<span style="color:var(--c-ue-light);">UE5に戻してPCG散布</span>
+  </div>
+  <p>Blenderは地形そのものの主役ではなく、<strong>アセット工房</strong>として位置付けられている。</p>
+</section>
+
+<section id="gaps">
+  <h2><span class="icon" style="background:rgba(231,76,60,.2);color:#ff7b6b;">!</span> 13. Blender 5に「足りていない」もの</h2>
+  <p>優先度順:</p>
+  <ol class="gap-list">
+    <li class="priority-high"><strong>Landscape Edit Layers相当の非破壊レイヤー編集機構</strong>（最大の欠損）</li>
+    <li class="priority-high">品質の高い組み込みエロージョン/ハイドロエロージョン</li>
+    <li class="priority-high">ランタイムスケールのPCGスキャッター</li>
+    <li class="priority-high">Landmass/Waterスプラインの統合地形変形</li>
+    <li class="priority-mid">非破壊スタンプブラシ（配置・順序編集・後修正可能）</li>
+    <li class="priority-mid">地形専用レイヤーマテリアルペイント+Height Blend UI</li>
+    <li class="priority-mid">Landscapeタイル化+LOD/ストリーミング</li>
+    <li class="priority-mid">チーム同時編集（World Partition/OFPA相当）</li>
+    <li class="priority-low">スカルプト中のフルルック統合リアルタイムプレビュー</li>
+    <li class="priority-low">地形向け専用ブラシセット（blackearsで部分補完可）</li>
+  </ol>
+  <div class="callout"><strong>核心:</strong> これらを<strong>1つの統合UI</strong>で提供するのがUE5 Landscapeであり、Blender単体では現状どこまでアドオンを積んでも「統合感」という体験価値を再現できない。</div>
+
+  <h3>逆にBlenderにあって UE5 にないもの（公平性）</h3>
+  <table>
+    <thead><tr><th>観点</th><th>Blender優位点</th></tr></thead>
+    <tbody>
+      <tr><td>汎用モデリング/リトポ/UV</td><td>UE5 Modeling Modeに総合力で勝る</td></tr>
+      <tr><td>ベイク（ハイポリ→ローポリ）</td><td>Multires Bake等が強力</td></tr>
+      <tr><td>キャラクタースカルプト</td><td>Blender 4.5 Vulkan以降は現実的なZBrush代替</td></tr>
+      <tr><td>オフラインレンダ品質</td><td>Cyclesのパストレーシングが UE5 Path Tracer を上回る</td></tr>
+      <tr><td>ライセンス</td><td><strong>GPL無償完全機能</strong> vs UE5 商用5%ロイヤリティ</td></tr>
+      <tr><td>オフライン完結</td><td>単体でパイプライン完結</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="conclusion">
+  <h2><span class="icon" style="background:rgba(46,204,113,.2);color:#58d68d;">=</span> 14. 結論</h2>
+  <p>Blender 5は<strong>スカルプトの「手触り」自体は劇的に改善</strong>された（5倍モード突入、8倍ブラシ評価、Vulkan化で20Mポリゴン実用）。しかし「<strong>ゲーム地形を統合UIで非破壊に作り込む</strong>」という UE5 Landscape の体験価値は、アドオンの寄せ集めでも完全には再現できない。</p>
+  <h3>現実的な選択肢</h3>
+  <table>
+    <thead><tr><th>シナリオ</th><th>推奨</th></tr></thead>
+    <tbody>
+      <tr><td>手触り重視のキャラ系/個別アセット</td><td><strong>Blender 5</strong></td></tr>
+      <tr><td>大規模地形をオフライン制作</td><td><strong>Gaea/World Creator</strong> + Blender でアセット</td></tr>
+      <tr><td>ゲーム前提の統合的地形制作</td><td><strong>UE5 Landscape</strong>（または UE 5.8 Mesh Terrain を待つ）</td></tr>
+      <tr><td>Blender単体で地形にこだわる</td><td><strong>True-TERRAIN 5 + blackears Terrain Sculpt + Hydra</strong></td></tr>
+    </tbody>
+  </table>
+  <p>将来的に Blender 5.x で<strong>Sculpting Layers が公式実装</strong>（issue #132533）されれば、最大の欠損が解消される。それまでは「Blender はアセット工房、地形主役は UE5/Gaea」というハイブリッドが現実解。</p>
+</section>
+
+<section id="links">
+  <h2><span class="icon" style="background:rgba(52,152,219,.2);color:#85c1e9;">&#128279;</span> 15. 参考リンク集</h2>
+
+  <h3>UE5 公式ドキュメント</h3>
+  <div class="link-group">
+    <a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/landscape-sculpt-mode-in-unreal-engine" target="_blank" class="link-item"><span class="link-icon">UE</span> Landscape Sculpt Mode</a>
+    <a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/landscape-brushes-in-unreal-engine" target="_blank" class="link-item"><span class="link-icon">UE</span> Landscape Brushes</a>
+    <a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/landscape-edit-layers-in-unreal-engine" target="_blank" class="link-item"><span class="link-icon">UE</span> Edit Layers</a>
+    <a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/landscape-erosion-tool-in-unreal-engine" target="_blank" class="link-item"><span class="link-icon">UE</span> Erosion Tool</a>
+    <a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/landscape-hydroerosion-tool-in-unreal-engine" target="_blank" class="link-item"><span class="link-icon">UE</span> Hydro-Erosion</a>
+    <a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/landscape-materials-in-unreal-engine" target="_blank" class="link-item"><span class="link-icon">UE</span> Landscape Materials</a>
+    <a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/importing-and-exporting-landscape-heightmaps-in-unreal-engine" target="_blank" class="link-item"><span class="link-icon">UE</span> Heightmap I/O</a>
+    <a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/using-nanite-with-landscapes-in-unreal-engine" target="_blank" class="link-item"><span class="link-icon">UE</span> Nanite Landscape</a>
+    <a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/world-partition-in-unreal-engine" target="_blank" class="link-item"><span class="link-icon">UE</span> World Partition</a>
+    <a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/procedural-content-generation-overview" target="_blank" class="link-item"><span class="link-icon">UE</span> PCG Overview</a>
+    <a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Plugins/Landmass" target="_blank" class="link-item"><span class="link-icon">UE</span> Landmass API</a>
+    <a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/landscape-blueprint-brushes-in-unreal-engine" target="_blank" class="link-item"><span class="link-icon">UE</span> Blueprint Brushes</a>
+  </div>
+
+  <h3>UE 5.8 Mesh Terrain</h3>
+  <div class="link-group">
+    <a href="https://80.lv/articles/details-on-ue5-s-next-generation-terrain-system-revealed" target="_blank" class="link-item"><span class="link-icon">N</span> Mesh Terrain Doc - 80.lv</a>
+    <a href="https://www.toolfarm.com/news/mesh-terrain-unreal-engine-5-8/" target="_blank" class="link-item"><span class="link-icon">N</span> Next-Gen Mesh Terrain - Toolfarm</a>
+  </div>
+
+  <h3>Blender 5 公式</h3>
+  <div class="link-group">
+    <a href="https://www.blender.org/download/releases/5-1/" target="_blank" class="link-item"><span class="link-icon">BL</span> Blender 5.1 Release Notes</a>
+    <a href="https://www.blender.org/download/releases/5-0/" target="_blank" class="link-item"><span class="link-icon">BL</span> Blender 5.0 Release Notes</a>
+    <a href="https://developer.blender.org/docs/release_notes/5.0/sculpt/" target="_blank" class="link-item"><span class="link-icon">BL</span> 5.0 Sculpt Release Notes</a>
+    <a href="https://developer.blender.org/docs/release_notes/5.0/geometry_nodes/" target="_blank" class="link-item"><span class="link-icon">BL</span> 5.0 Geometry Nodes</a>
+    <a href="https://code.blender.org/2024/11/this-summers-sculpt-mode-refactor/" target="_blank" class="link-item"><span class="link-icon">BL</span> Sculpt Mode Refactor</a>
+    <a href="https://code.blender.org/2026/02/winter-of-quality-2026/" target="_blank" class="link-item"><span class="link-icon">BL</span> Winter of Quality 2026</a>
+    <a href="https://code.blender.org/2024/07/brush-assets-is-out/" target="_blank" class="link-item"><span class="link-icon">BL</span> Brush Assets</a>
+    <a href="https://projects.blender.org/blender/blender/issues/132533" target="_blank" class="link-item"><span class="link-icon">!</span> Sculpting Layers Design #132533</a>
+  </div>
+
+  <h3>Blender 地形アドオン</h3>
+  <div class="link-group">
+    <a href="https://extensions.blender.org/add-ons/antlandscape/" target="_blank" class="link-item"><span class="link-icon">A</span> A.N.T.Landscape</a>
+    <a href="https://superhivemarket.com/products/true-terrain" target="_blank" class="link-item"><span class="link-icon">T</span> True-Terrain 5 (Superhive)</a>
+    <a href="https://www.true-vfx.xyz/products/true-terrain" target="_blank" class="link-item"><span class="link-icon">T</span> True-Terrain 公式</a>
+    <a href="https://github.com/blackears/blenderTerrainSculpt" target="_blank" class="link-item"><span class="link-icon">GH</span> blenderTerrainSculpt</a>
+    <a href="https://extensions.blender.org/add-ons/terrainmixer/" target="_blank" class="link-item"><span class="link-icon">M</span> Terrain Mixer</a>
+    <a href="https://superhivemarket.com/products/studio156-procedural-terrain-generator" target="_blank" class="link-item"><span class="link-icon">P</span> Procedural Terrain 2.0</a>
+    <a href="https://blenderartists.org/t/easy-terrain-generator-v2-1-erosion-simulation/1591116" target="_blank" class="link-item"><span class="link-icon">E</span> Easy Terrain Generator</a>
+    <a href="https://iperson.github.io/tn_docs/" target="_blank" class="link-item"><span class="link-icon">N</span> Terrain Nodes Doc</a>
+    <a href="https://superhivemarket.com/products/sculpt-layers" target="_blank" class="link-item"><span class="link-icon">L</span> Sculpt Layers Addon</a>
+  </div>
+
+  <h3>浸食シミュレーション</h3>
+  <div class="link-group">
+    <a href="https://github.com/nerk987/ErosionR" target="_blank" class="link-item"><span class="link-icon">GH</span> ErosionR</a>
+    <a href="https://github.com/ozikazina/Hydra" target="_blank" class="link-item"><span class="link-icon">GH</span> Hydra</a>
+  </div>
+
+  <h3>GIS / 実世界データ</h3>
+  <div class="link-group">
+    <a href="https://github.com/domlysz/BlenderGIS" target="_blank" class="link-item"><span class="link-icon">GH</span> BlenderGIS</a>
+    <a href="https://github.com/vvoovv/blosm" target="_blank" class="link-item"><span class="link-icon">GH</span> Blosm</a>
+  </div>
+
+  <h3>外部DCC（Gaea他）</h3>
+  <div class="link-group">
+    <a href="https://quadspinner.com/" target="_blank" class="link-item"><span class="link-icon">G</span> QuadSpinner Gaea</a>
+    <a href="https://www.world-creator.com/" target="_blank" class="link-item"><span class="link-icon">W</span> World Creator</a>
+    <a href="https://jangafx.com/software/geogen" target="_blank" class="link-item"><span class="link-icon">J</span> JangaFX GeoGen</a>
+  </div>
+
+  <h3>比較記事・チュートリアル</h3>
+  <div class="link-group">
+    <a href="https://community.cgboost.com/c/discussions/ue5-vs-blender" target="_blank" class="link-item"><span class="link-icon">N</span> UE5 vs Blender - CG Boost</a>
+    <a href="https://artaux.io/detailService/88" target="_blank" class="link-item"><span class="link-icon">N</span> Terrain in UE5 or Blender</a>
+    <a href="https://www.schoolofmotion.com/blog/blender-to-unreal-engine-workflow" target="_blank" class="link-item"><span class="link-icon">N</span> Blender to Unreal Workflow</a>
+    <a href="https://www.pablander.academy/tutorials/watch-out-zbrush-blender-4-5-vulkan-is-here" target="_blank" class="link-item"><span class="link-icon">N</span> Watch Out ZBrush... Vulkan</a>
+    <a href="https://80.lv/articles/gaea-inspired-ultimate-blender-solution-for-building-any-terrain" target="_blank" class="link-item"><span class="link-icon">N</span> Gaea-inspired Blender - 80.lv</a>
+    <a href="https://www.blendernation.com/2025/12/29/a-clean-gaea-to-blender-pipeline-for-terrain-fog-and-final-renders/" target="_blank" class="link-item"><span class="link-icon">N</span> Gaea-to-Blender Pipeline</a>
+    <a href="https://80.lv/articles/blender-4-5-s-vulkan-upgrade-lets-you-smoothly-sculpt-millions-of-polygons" target="_blank" class="link-item"><span class="link-icon">N</span> Blender 4.5 Vulkan 20M Poly</a>
+  </div>
+
+  <h3>日本語</h3>
+  <div class="link-group">
+    <a href="https://cgbox.jp/2025/01/26/ue5-beginner-landscape/" target="_blank" class="link-item"><span class="link-icon">JP</span> UE5初心者 ランドスケープ</a>
+    <a href="https://ue5study.com/unrealengine-landscape/" target="_blank" class="link-item"><span class="link-icon">JP</span> UE5 ランドスケープ攻略</a>
+    <a href="https://tech.dentsusoken.com/entry/unreal-engine-world-making" target="_blank" class="link-item"><span class="link-icon">JP</span> UE5 ワールド地形 - 電通総研</a>
+    <a href="https://styly.cc/tips/blender-addon-ant-landscape/" target="_blank" class="link-item"><span class="link-icon">JP</span> ANT Landscape - STYLY</a>
+  </div>
+
+  <h3>設計議論</h3>
+  <div class="link-group">
+    <a href="https://devtalk.blender.org/t/terrain-creation-workflow-proposal/22681" target="_blank" class="link-item"><span class="link-icon">!</span> Terrain Creation Workflow Proposal</a>
+    <a href="https://devtalk.blender.org/t/tool-terrain-system-design/12026" target="_blank" class="link-item"><span class="link-icon">!</span> Tool - Terrain System Design</a>
+    <a href="https://devtalk.blender.org/t/gsoc-2025-optimizing-mesh-and-multires-sculpting-performance-in-blender/40368" target="_blank" class="link-item"><span class="link-icon">!</span> GSoC 2025 Sculpt Performance</a>
+  </div>
+</section>
+
+<footer style="text-align:center;padding:3rem 0;color:var(--c-text-sub);font-size:.8rem;border-top:1px solid var(--c-border);">
+  UE5 vs Blender 5 Terrain Sculpting Comparison &mdash; Compiled 2026-04-08<br>
+  Sources: Epic Games Docs, Blender devtalk/code.blender.org, ArtStation, 80.lv, BlenderNation, Pablander Academy, Polycount, Reddit
+</footer>
+
+</main>
+</div>
+
+<button class="scroll-top" onclick="window.scrollTo({top:0})" aria-label="Top">&uarr;</button>
+<script>
+const btn=document.querySelector('.scroll-top');window.addEventListener('scroll',()=>{btn.classList.toggle('visible',window.scrollY>400)});
+const links=document.querySelectorAll('.sidebar a'),sections=document.querySelectorAll('section[id]');
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){links.forEach(l=>l.classList.remove('active'));const a=document.querySelector(`.sidebar a[href="#${x.target.id}"]`);if(a)a.classList.add('active')}})},{rootMargin:'-20% 0px -70% 0px'});
+sections.forEach(s=>obs.observe(s));
+</script>
+</body>
+</html>
